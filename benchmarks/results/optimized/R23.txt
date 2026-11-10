@@ -1,0 +1,27 @@
+=== R23 run 1 ===
+Index Scan using users_phone_key on users  (cost=0.29..8.31 rows=1 width=23) (actual time=0.734..0.735 rows=1.00 loops=1)
+  Index Cond: ((phone)::text = '8100001042'::text)
+  Index Searches: 1
+  Buffers: shared read=3
+Planning:
+  Buffers: shared hit=106
+Planning Time: 0.702 ms
+Execution Time: 0.780 ms
+=== R23 run 2 ===
+Index Scan using users_phone_key on users  (cost=0.29..8.31 rows=1 width=23) (actual time=0.059..0.060 rows=1.00 loops=1)
+  Index Cond: ((phone)::text = '8100001042'::text)
+  Index Searches: 1
+  Buffers: shared hit=3
+Planning:
+  Buffers: shared hit=106
+Planning Time: 1.016 ms
+Execution Time: 0.109 ms
+=== R23 run 3 ===
+Index Scan using users_phone_key on users  (cost=0.29..8.31 rows=1 width=23) (actual time=0.024..0.025 rows=1.00 loops=1)
+  Index Cond: ((phone)::text = '8100001042'::text)
+  Index Searches: 1
+  Buffers: shared hit=3
+Planning:
+  Buffers: shared hit=106
+Planning Time: 0.596 ms
+Execution Time: 0.055 ms

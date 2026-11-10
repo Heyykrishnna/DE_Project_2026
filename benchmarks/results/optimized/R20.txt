@@ -1,0 +1,63 @@
+=== R20 run 1 ===
+WindowAgg  (cost=964.66..1220.15 rows=6814 width=44) (actual time=2.046..2.282 rows=30.00 loops=1)
+  Window: w1 AS (ORDER BY (((listings.posted_at AT TIME ZONE 'Asia/Kolkata'::text))::date))
+  Storage: Memory  Maximum Storage: 17kB
+  Buffers: shared hit=7 read=59 written=58
+  ->  GroupAggregate  (cost=964.62..1117.94 rows=6814 width=12) (actual time=2.027..2.266 rows=30.00 loops=1)
+        Group Key: (((listings.posted_at AT TIME ZONE 'Asia/Kolkata'::text))::date)
+        Buffers: shared hit=7 read=59 written=58
+        ->  Sort  (cost=964.62..981.66 rows=6814 width=4) (actual time=2.013..2.122 rows=6576.00 loops=1)
+              Sort Key: (((listings.posted_at AT TIME ZONE 'Asia/Kolkata'::text))::date)
+              Sort Method: quicksort  Memory: 193kB
+              Buffers: shared hit=7 read=59 written=58
+              ->  Index Only Scan using idx_listings_posted_desc_id on listings  (cost=0.42..530.77 rows=6814 width=4) (actual time=0.011..1.831 rows=6576.00 loops=1)
+                    Index Cond: ((posted_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (posted_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
+                    Heap Fetches: 0
+                    Index Searches: 1
+                    Buffers: shared hit=4 read=59 written=58
+Planning:
+  Buffers: shared hit=387 read=3 written=3
+Planning Time: 0.660 ms
+Execution Time: 2.338 ms
+=== R20 run 2 ===
+WindowAgg  (cost=964.66..1220.15 rows=6814 width=44) (actual time=1.677..1.947 rows=30.00 loops=1)
+  Window: w1 AS (ORDER BY (((listings.posted_at AT TIME ZONE 'Asia/Kolkata'::text))::date))
+  Storage: Memory  Maximum Storage: 17kB
+  Buffers: shared hit=66
+  ->  GroupAggregate  (cost=964.62..1117.94 rows=6814 width=12) (actual time=1.656..1.931 rows=30.00 loops=1)
+        Group Key: (((listings.posted_at AT TIME ZONE 'Asia/Kolkata'::text))::date)
+        Buffers: shared hit=66
+        ->  Sort  (cost=964.62..981.66 rows=6814 width=4) (actual time=1.643..1.766 rows=6576.00 loops=1)
+              Sort Key: (((listings.posted_at AT TIME ZONE 'Asia/Kolkata'::text))::date)
+              Sort Method: quicksort  Memory: 193kB
+              Buffers: shared hit=66
+              ->  Index Only Scan using idx_listings_posted_desc_id on listings  (cost=0.42..530.77 rows=6814 width=4) (actual time=0.012..1.468 rows=6576.00 loops=1)
+                    Index Cond: ((posted_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (posted_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
+                    Heap Fetches: 0
+                    Index Searches: 1
+                    Buffers: shared hit=63
+Planning:
+  Buffers: shared hit=390
+Planning Time: 0.750 ms
+Execution Time: 1.999 ms
+=== R20 run 3 ===
+WindowAgg  (cost=964.66..1220.15 rows=6814 width=44) (actual time=1.683..1.945 rows=30.00 loops=1)
+  Window: w1 AS (ORDER BY (((listings.posted_at AT TIME ZONE 'Asia/Kolkata'::text))::date))
+  Storage: Memory  Maximum Storage: 17kB
+  Buffers: shared hit=66
+  ->  GroupAggregate  (cost=964.62..1117.94 rows=6814 width=12) (actual time=1.661..1.928 rows=30.00 loops=1)
+        Group Key: (((listings.posted_at AT TIME ZONE 'Asia/Kolkata'::text))::date)
+        Buffers: shared hit=66
+        ->  Sort  (cost=964.62..981.66 rows=6814 width=4) (actual time=1.647..1.766 rows=6576.00 loops=1)
+              Sort Key: (((listings.posted_at AT TIME ZONE 'Asia/Kolkata'::text))::date)
+              Sort Method: quicksort  Memory: 193kB
+              Buffers: shared hit=66
+              ->  Index Only Scan using idx_listings_posted_desc_id on listings  (cost=0.42..530.77 rows=6814 width=4) (actual time=0.009..1.459 rows=6576.00 loops=1)
+                    Index Cond: ((posted_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (posted_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
+                    Heap Fetches: 0
+                    Index Searches: 1
+                    Buffers: shared hit=63
+Planning:
+  Buffers: shared hit=390
+Planning Time: 0.533 ms
+Execution Time: 1.990 ms

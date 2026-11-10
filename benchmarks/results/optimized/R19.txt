@@ -1,0 +1,117 @@
+=== R19 run 1 ===
+Sort  (cost=2345.14..2345.82 rows=273 width=41) (actual time=22.901..22.907 rows=279.00 loops=1)
+  Sort Key: (count(DISTINCT t.thread_id)) DESC
+  Sort Method: quicksort  Memory: 41kB
+  Buffers: shared hit=591 read=592 written=363
+  ->  GroupAggregate  (cost=2321.81..2334.10 rows=273 width=41) (actual time=22.796..22.876 rows=279.00 loops=1)
+        Group Key: l.listing_id
+        Buffers: shared hit=588 read=592 written=363
+        ->  Sort  (cost=2321.81..2324.20 rows=956 width=41) (actual time=22.792..22.806 rows=742.00 loops=1)
+              Sort Key: l.listing_id, t.thread_id
+              Sort Method: quicksort  Memory: 68kB
+              Buffers: shared hit=588 read=592 written=363
+              ->  Nested Loop Left Join  (cost=900.19..2274.48 rows=956 width=41) (actual time=0.369..22.695 rows=742.00 loops=1)
+                    Buffers: shared hit=588 read=592 written=363
+                    ->  Hash Right Join  (cost=899.77..2096.44 rows=273 width=33) (actual time=0.365..5.418 rows=318.00 loops=1)
+                          Hash Cond: (t.listing_id = l.listing_id)
+                          Buffers: shared hit=256 read=439 written=245
+                          ->  Seq Scan on chat_threads t  (cost=0.00..1039.55 rows=59855 width=16) (actual time=0.024..3.338 rows=59855.00 loops=1)
+                                Buffers: shared hit=12 read=429 written=245
+                          ->  Hash  (cost=896.36..896.36 rows=273 width=25) (actual time=0.336..0.337 rows=279.00 loops=1)
+                                Buckets: 1024  Batches: 1  Memory Usage: 25kB
+                                Buffers: shared hit=244 read=10
+                                ->  Bitmap Heap Scan on listings l  (cost=27.08..896.36 rows=273 width=25) (actual time=0.058..0.320 rows=279.00 loops=1)
+                                      Recheck Cond: ((category_id = 2) AND (city_id = 1) AND ((status)::text = 'ACTIVE'::text))
+                                      Heap Blocks: exact=241
+                                      Buffers: shared hit=244 read=10
+                                      ->  Bitmap Index Scan on idx_listings_active_cat_city_posted  (cost=0.00..27.02 rows=273 width=0) (actual time=0.043..0.043 rows=279.00 loops=1)
+                                            Index Cond: ((category_id = 2) AND (city_id = 1))
+                                            Index Searches: 1
+                                            Buffers: shared hit=3 read=10
+                    ->  Index Only Scan using idx_chat_messages_thread_sent on chat_messages m  (cost=0.42..0.61 rows=4 width=16) (actual time=0.053..0.054 rows=1.83 loops=318)
+                          Index Cond: (thread_id = t.thread_id)
+                          Heap Fetches: 0
+                          Index Searches: 159
+                          Buffers: shared hit=332 read=153 written=118
+Planning:
+  Buffers: shared hit=654
+Planning Time: 1.046 ms
+Execution Time: 22.953 ms
+=== R19 run 2 ===
+Sort  (cost=2345.14..2345.82 rows=273 width=41) (actual time=3.988..3.994 rows=279.00 loops=1)
+  Sort Key: (count(DISTINCT t.thread_id)) DESC
+  Sort Method: quicksort  Memory: 41kB
+  Buffers: shared hit=1183
+  ->  GroupAggregate  (cost=2321.81..2334.10 rows=273 width=41) (actual time=3.881..3.956 rows=279.00 loops=1)
+        Group Key: l.listing_id
+        Buffers: shared hit=1180
+        ->  Sort  (cost=2321.81..2324.20 rows=956 width=41) (actual time=3.878..3.892 rows=742.00 loops=1)
+              Sort Key: l.listing_id, t.thread_id
+              Sort Method: quicksort  Memory: 68kB
+              Buffers: shared hit=1180
+              ->  Nested Loop Left Join  (cost=900.19..2274.48 rows=956 width=41) (actual time=0.363..3.803 rows=742.00 loops=1)
+                    Buffers: shared hit=1180
+                    ->  Hash Right Join  (cost=899.77..2096.44 rows=273 width=33) (actual time=0.359..3.433 rows=318.00 loops=1)
+                          Hash Cond: (t.listing_id = l.listing_id)
+                          Buffers: shared hit=695
+                          ->  Seq Scan on chat_threads t  (cost=0.00..1039.55 rows=59855 width=16) (actual time=0.002..1.496 rows=59855.00 loops=1)
+                                Buffers: shared hit=441
+                          ->  Hash  (cost=896.36..896.36 rows=273 width=25) (actual time=0.353..0.353 rows=279.00 loops=1)
+                                Buckets: 1024  Batches: 1  Memory Usage: 25kB
+                                Buffers: shared hit=254
+                                ->  Bitmap Heap Scan on listings l  (cost=27.08..896.36 rows=273 width=25) (actual time=0.052..0.337 rows=279.00 loops=1)
+                                      Recheck Cond: ((category_id = 2) AND (city_id = 1) AND ((status)::text = 'ACTIVE'::text))
+                                      Heap Blocks: exact=241
+                                      Buffers: shared hit=254
+                                      ->  Bitmap Index Scan on idx_listings_active_cat_city_posted  (cost=0.00..27.02 rows=273 width=0) (actual time=0.036..0.036 rows=279.00 loops=1)
+                                            Index Cond: ((category_id = 2) AND (city_id = 1))
+                                            Index Searches: 1
+                                            Buffers: shared hit=13
+                    ->  Index Only Scan using idx_chat_messages_thread_sent on chat_messages m  (cost=0.42..0.61 rows=4 width=16) (actual time=0.001..0.001 rows=1.83 loops=318)
+                          Index Cond: (thread_id = t.thread_id)
+                          Heap Fetches: 0
+                          Index Searches: 159
+                          Buffers: shared hit=485
+Planning:
+  Buffers: shared hit=654
+Planning Time: 1.066 ms
+Execution Time: 4.035 ms
+=== R19 run 3 ===
+Sort  (cost=2345.14..2345.82 rows=273 width=41) (actual time=4.173..4.179 rows=279.00 loops=1)
+  Sort Key: (count(DISTINCT t.thread_id)) DESC
+  Sort Method: quicksort  Memory: 41kB
+  Buffers: shared hit=1183
+  ->  GroupAggregate  (cost=2321.81..2334.10 rows=273 width=41) (actual time=4.069..4.148 rows=279.00 loops=1)
+        Group Key: l.listing_id
+        Buffers: shared hit=1180
+        ->  Sort  (cost=2321.81..2324.20 rows=956 width=41) (actual time=4.066..4.080 rows=742.00 loops=1)
+              Sort Key: l.listing_id, t.thread_id
+              Sort Method: quicksort  Memory: 68kB
+              Buffers: shared hit=1180
+              ->  Nested Loop Left Join  (cost=900.19..2274.48 rows=956 width=41) (actual time=0.347..3.989 rows=742.00 loops=1)
+                    Buffers: shared hit=1180
+                    ->  Hash Right Join  (cost=899.77..2096.44 rows=273 width=33) (actual time=0.343..3.591 rows=318.00 loops=1)
+                          Hash Cond: (t.listing_id = l.listing_id)
+                          Buffers: shared hit=695
+                          ->  Seq Scan on chat_threads t  (cost=0.00..1039.55 rows=59855 width=16) (actual time=0.002..1.618 rows=59855.00 loops=1)
+                                Buffers: shared hit=441
+                          ->  Hash  (cost=896.36..896.36 rows=273 width=25) (actual time=0.337..0.337 rows=279.00 loops=1)
+                                Buckets: 1024  Batches: 1  Memory Usage: 25kB
+                                Buffers: shared hit=254
+                                ->  Bitmap Heap Scan on listings l  (cost=27.08..896.36 rows=273 width=25) (actual time=0.061..0.321 rows=279.00 loops=1)
+                                      Recheck Cond: ((category_id = 2) AND (city_id = 1) AND ((status)::text = 'ACTIVE'::text))
+                                      Heap Blocks: exact=241
+                                      Buffers: shared hit=254
+                                      ->  Bitmap Index Scan on idx_listings_active_cat_city_posted  (cost=0.00..27.02 rows=273 width=0) (actual time=0.045..0.045 rows=279.00 loops=1)
+                                            Index Cond: ((category_id = 2) AND (city_id = 1))
+                                            Index Searches: 1
+                                            Buffers: shared hit=13
+                    ->  Index Only Scan using idx_chat_messages_thread_sent on chat_messages m  (cost=0.42..0.61 rows=4 width=16) (actual time=0.001..0.001 rows=1.83 loops=318)
+                          Index Cond: (thread_id = t.thread_id)
+                          Heap Fetches: 0
+                          Index Searches: 159
+                          Buffers: shared hit=485
+Planning:
+  Buffers: shared hit=654
+Planning Time: 1.014 ms
+Execution Time: 4.223 ms
