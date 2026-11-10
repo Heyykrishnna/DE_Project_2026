@@ -1,0 +1,51 @@
+=== R12 run 1 ===
+Sort  (cost=11833.63..11933.51 rows=39953 width=20) (actual time=79.613..79.614 rows=30.00 loops=1)
+  Sort Key: (count(*)) DESC, (((posted_at AT TIME ZONE 'Asia/Kolkata'::text))::date)
+  Sort Method: quicksort  Memory: 26kB
+  Buffers: shared hit=1245 read=3143, temp read=80 written=150
+  ->  HashAggregate  (cost=7082.00..8780.01 rows=39953 width=20) (actual time=69.569..79.538 rows=30.00 loops=1)
+        Group Key: seller_id, ((posted_at AT TIME ZONE 'Asia/Kolkata'::text))::date
+        Filter: (count(*) >= 5)
+        Batches: 5  Memory Usage: 9017kB  Disk Usage: 736kB
+        Rows Removed by Filter: 119414
+        Buffers: shared hit=1239 read=3143, temp read=80 written=150
+        ->  Seq Scan on listings  (cost=0.00..6182.00 rows=120000 width=12) (actual time=0.086..47.510 rows=120000.00 loops=1)
+              Buffers: shared hit=1239 read=3143
+Planning:
+  Buffers: shared hit=405
+Planning Time: 1.642 ms
+Execution Time: 80.311 ms
+=== R12 run 2 ===
+Sort  (cost=11833.63..11933.51 rows=39953 width=20) (actual time=53.824..53.825 rows=30.00 loops=1)
+  Sort Key: (count(*)) DESC, (((posted_at AT TIME ZONE 'Asia/Kolkata'::text))::date)
+  Sort Method: quicksort  Memory: 26kB
+  Buffers: shared hit=1339 read=3049, temp read=80 written=150
+  ->  HashAggregate  (cost=7082.00..8780.01 rows=39953 width=20) (actual time=45.355..53.809 rows=30.00 loops=1)
+        Group Key: seller_id, ((posted_at AT TIME ZONE 'Asia/Kolkata'::text))::date
+        Filter: (count(*) >= 5)
+        Batches: 5  Memory Usage: 9017kB  Disk Usage: 736kB
+        Rows Removed by Filter: 119414
+        Buffers: shared hit=1333 read=3049, temp read=80 written=150
+        ->  Seq Scan on listings  (cost=0.00..6182.00 rows=120000 width=12) (actual time=0.013..32.935 rows=120000.00 loops=1)
+              Buffers: shared hit=1333 read=3049
+Planning:
+  Buffers: shared hit=405
+Planning Time: 0.533 ms
+Execution Time: 54.302 ms
+=== R12 run 3 ===
+Sort  (cost=11833.63..11933.51 rows=39953 width=20) (actual time=54.344..54.345 rows=30.00 loops=1)
+  Sort Key: (count(*)) DESC, (((posted_at AT TIME ZONE 'Asia/Kolkata'::text))::date)
+  Sort Method: quicksort  Memory: 26kB
+  Buffers: shared hit=1433 read=2955 written=65, temp read=80 written=150
+  ->  HashAggregate  (cost=7082.00..8780.01 rows=39953 width=20) (actual time=45.452..54.330 rows=30.00 loops=1)
+        Group Key: seller_id, ((posted_at AT TIME ZONE 'Asia/Kolkata'::text))::date
+        Filter: (count(*) >= 5)
+        Batches: 5  Memory Usage: 9017kB  Disk Usage: 736kB
+        Rows Removed by Filter: 119414
+        Buffers: shared hit=1427 read=2955 written=65, temp read=80 written=150
+        ->  Seq Scan on listings  (cost=0.00..6182.00 rows=120000 width=12) (actual time=0.012..33.326 rows=120000.00 loops=1)
+              Buffers: shared hit=1427 read=2955 written=65
+Planning:
+  Buffers: shared hit=405
+Planning Time: 0.504 ms
+Execution Time: 54.974 ms
