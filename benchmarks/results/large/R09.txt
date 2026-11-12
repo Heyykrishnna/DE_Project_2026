@@ -1,0 +1,39 @@
+=== R09 run 1 ===
+Sort  (cost=125.78..125.84 rows=22 width=63) (actual time=0.836..0.838 rows=100.00 loops=1)
+  Sort Key: (round((('6371'::double precision * acos(LEAST('1'::double precision, ((('0.9744814473612341'::double precision * cos(radians((latitude)::double precision))) * cos((radians((longitude)::double precision) - '1.354281251767992'::double precision))) + ('0.2244680573016001'::double precision * sin(radians((latitude)::double precision))))))))::numeric, 2))
+  Sort Method: quicksort  Memory: 30kB
+  Buffers: shared hit=45 read=74
+  ->  Index Scan using idx_listings_active_cat_lat_lon on listings  (cost=0.42..125.29 rows=22 width=63) (actual time=0.491..0.813 rows=100.00 loops=1)
+        Index Cond: ((category_id = 9) AND (latitude >= 12.9536) AND (latitude <= 12.9896) AND (longitude >= 77.5761) AND (longitude <= 77.6131))
+        Index Searches: 1
+        Buffers: shared hit=42 read=74
+Planning:
+  Buffers: shared hit=415 read=37
+Planning Time: 1.166 ms
+Execution Time: 0.868 ms
+=== R09 run 2 ===
+Sort  (cost=125.78..125.84 rows=22 width=63) (actual time=0.264..0.266 rows=100.00 loops=1)
+  Sort Key: (round((('6371'::double precision * acos(LEAST('1'::double precision, ((('0.9744814473612341'::double precision * cos(radians((latitude)::double precision))) * cos((radians((longitude)::double precision) - '1.354281251767992'::double precision))) + ('0.2244680573016001'::double precision * sin(radians((latitude)::double precision))))))))::numeric, 2))
+  Sort Method: quicksort  Memory: 30kB
+  Buffers: shared hit=119
+  ->  Index Scan using idx_listings_active_cat_lat_lon on listings  (cost=0.42..125.29 rows=22 width=63) (actual time=0.037..0.241 rows=100.00 loops=1)
+        Index Cond: ((category_id = 9) AND (latitude >= 12.9536) AND (latitude <= 12.9896) AND (longitude >= 77.5761) AND (longitude <= 77.6131))
+        Index Searches: 1
+        Buffers: shared hit=116
+Planning:
+  Buffers: shared hit=452
+Planning Time: 0.622 ms
+Execution Time: 0.296 ms
+=== R09 run 3 ===
+Sort  (cost=125.78..125.84 rows=22 width=63) (actual time=0.277..0.278 rows=100.00 loops=1)
+  Sort Key: (round((('6371'::double precision * acos(LEAST('1'::double precision, ((('0.9744814473612341'::double precision * cos(radians((latitude)::double precision))) * cos((radians((longitude)::double precision) - '1.354281251767992'::double precision))) + ('0.2244680573016001'::double precision * sin(radians((latitude)::double precision))))))))::numeric, 2))
+  Sort Method: quicksort  Memory: 30kB
+  Buffers: shared hit=119
+  ->  Index Scan using idx_listings_active_cat_lat_lon on listings  (cost=0.42..125.29 rows=22 width=63) (actual time=0.042..0.252 rows=100.00 loops=1)
+        Index Cond: ((category_id = 9) AND (latitude >= 12.9536) AND (latitude <= 12.9896) AND (longitude >= 77.5761) AND (longitude <= 77.6131))
+        Index Searches: 1
+        Buffers: shared hit=116
+Planning:
+  Buffers: shared hit=452
+Planning Time: 0.649 ms
+Execution Time: 0.311 ms
