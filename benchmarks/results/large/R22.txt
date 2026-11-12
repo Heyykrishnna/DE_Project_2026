@@ -1,0 +1,36 @@
+=== R22 run 1 ===
+Limit  (cost=0.43..4.76 rows=25 width=49) (actual time=0.301..0.336 rows=25.00 loops=1)
+  Buffers: shared hit=8 read=12
+  ->  Index Only Scan using idx_listings_posted_desc_id on listings  (cost=0.43..244249.62 rows=1408652 width=49) (actual time=0.301..0.335 rows=25.00 loops=1)
+        Index Cond: (ROW(posted_at, listing_id) < ROW('2025-11-16 07:06:36+05:30'::timestamp with time zone, 70176))
+        Heap Fetches: 13
+        Index Searches: 1
+        Buffers: shared hit=8 read=12
+Planning:
+  Buffers: shared hit=379 read=6
+Planning Time: 0.567 ms
+Execution Time: 0.355 ms
+=== R22 run 2 ===
+Limit  (cost=0.43..4.76 rows=25 width=49) (actual time=0.030..0.047 rows=25.00 loops=1)
+  Buffers: shared hit=20
+  ->  Index Only Scan using idx_listings_posted_desc_id on listings  (cost=0.43..244249.62 rows=1408652 width=49) (actual time=0.029..0.045 rows=25.00 loops=1)
+        Index Cond: (ROW(posted_at, listing_id) < ROW('2025-11-16 07:06:36+05:30'::timestamp with time zone, 70176))
+        Heap Fetches: 13
+        Index Searches: 1
+        Buffers: shared hit=20
+Planning:
+  Buffers: shared hit=385
+Planning Time: 0.496 ms
+Execution Time: 0.064 ms
+=== R22 run 3 ===
+Limit  (cost=0.43..4.76 rows=25 width=49) (actual time=0.034..0.053 rows=25.00 loops=1)
+  Buffers: shared hit=20
+  ->  Index Only Scan using idx_listings_posted_desc_id on listings  (cost=0.43..244249.62 rows=1408652 width=49) (actual time=0.033..0.052 rows=25.00 loops=1)
+        Index Cond: (ROW(posted_at, listing_id) < ROW('2025-11-16 07:06:36+05:30'::timestamp with time zone, 70176))
+        Heap Fetches: 13
+        Index Searches: 1
+        Buffers: shared hit=20
+Planning:
+  Buffers: shared hit=385
+Planning Time: 0.508 ms
+Execution Time: 0.072 ms
