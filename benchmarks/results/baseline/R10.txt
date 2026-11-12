@@ -1,0 +1,57 @@
+=== R10 run 1 ===
+Gather Merge  (cost=6299.60..6306.59 rows=60 width=40) (actual time=6.652..7.570 rows=625.00 loops=1)
+  Workers Planned: 2
+  Workers Launched: 2
+  Buffers: shared hit=4500
+  ->  Sort  (cost=5299.58..5299.64 rows=25 width=40) (actual time=4.414..4.418 rows=208.33 loops=3)
+        Sort Key: expires_at
+        Sort Method: quicksort  Memory: 37kB
+        Buffers: shared hit=4500
+        Worker 0:  Sort Method: quicksort  Memory: 37kB
+        Worker 1:  Sort Method: quicksort  Memory: 37kB
+        ->  Parallel Seq Scan on listings  (cost=0.00..5299.00 rows=25 width=40) (actual time=0.382..4.351 rows=208.33 loops=3)
+              Filter: ((expires_at >= '2026-07-01 00:00:00+05:30'::timestamp with time zone) AND (expires_at < '2026-07-04 00:00:00+05:30'::timestamp with time zone) AND ((status)::text = 'ACTIVE'::text))
+              Rows Removed by Filter: 39792
+              Buffers: shared hit=4424
+Planning:
+  Buffers: shared hit=130
+Planning Time: 0.175 ms
+Execution Time: 7.621 ms
+=== R10 run 2 ===
+Gather Merge  (cost=6299.60..6306.59 rows=60 width=40) (actual time=5.878..7.043 rows=625.00 loops=1)
+  Workers Planned: 2
+  Workers Launched: 2
+  Buffers: shared hit=4500
+  ->  Sort  (cost=5299.58..5299.64 rows=25 width=40) (actual time=3.971..3.975 rows=208.33 loops=3)
+        Sort Key: expires_at
+        Sort Method: quicksort  Memory: 38kB
+        Buffers: shared hit=4500
+        Worker 0:  Sort Method: quicksort  Memory: 36kB
+        Worker 1:  Sort Method: quicksort  Memory: 37kB
+        ->  Parallel Seq Scan on listings  (cost=0.00..5299.00 rows=25 width=40) (actual time=0.327..3.935 rows=208.33 loops=3)
+              Filter: ((expires_at >= '2026-07-01 00:00:00+05:30'::timestamp with time zone) AND (expires_at < '2026-07-04 00:00:00+05:30'::timestamp with time zone) AND ((status)::text = 'ACTIVE'::text))
+              Rows Removed by Filter: 39792
+              Buffers: shared hit=4424
+Planning:
+  Buffers: shared hit=130
+Planning Time: 0.175 ms
+Execution Time: 7.076 ms
+=== R10 run 3 ===
+Gather Merge  (cost=6299.60..6306.59 rows=60 width=40) (actual time=6.362..7.216 rows=625.00 loops=1)
+  Workers Planned: 2
+  Workers Launched: 2
+  Buffers: shared hit=4500
+  ->  Sort  (cost=5299.58..5299.64 rows=25 width=40) (actual time=4.596..4.600 rows=208.33 loops=3)
+        Sort Key: expires_at
+        Sort Method: quicksort  Memory: 38kB
+        Buffers: shared hit=4500
+        Worker 0:  Sort Method: quicksort  Memory: 37kB
+        Worker 1:  Sort Method: quicksort  Memory: 36kB
+        ->  Parallel Seq Scan on listings  (cost=0.00..5299.00 rows=25 width=40) (actual time=0.594..4.555 rows=208.33 loops=3)
+              Filter: ((expires_at >= '2026-07-01 00:00:00+05:30'::timestamp with time zone) AND (expires_at < '2026-07-04 00:00:00+05:30'::timestamp with time zone) AND ((status)::text = 'ACTIVE'::text))
+              Rows Removed by Filter: 39792
+              Buffers: shared hit=4424
+Planning:
+  Buffers: shared hit=130
+Planning Time: 0.274 ms
+Execution Time: 7.267 ms

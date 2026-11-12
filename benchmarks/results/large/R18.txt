@@ -1,0 +1,54 @@
+=== R18 run 1 ===
+Sort  (cost=253258.67..253800.78 rows=216844 width=39) (actual time=1971.167..1971.174 rows=240.00 loops=1)
+  Sort Key: (count(*)) DESC, seller_id
+  Sort Method: quicksort  Memory: 38kB
+  Buffers: shared hit=1222082 read=57491 dirtied=15232 written=12622
+  ->  GroupAggregate  (cost=0.43..228106.97 rows=216844 width=39) (actual time=0.392..1971.039 rows=240.00 loops=1)
+        Group Key: seller_id, title, price
+        Filter: (count(*) > 1)
+        Rows Removed by Filter: 2399520
+        Buffers: shared hit=1222079 read=57491 dirtied=15232 written=12622
+        ->  Index Only Scan using idx_listings_seller_title_price on listings  (cost=0.43..195975.33 rows=2400000 width=31) (actual time=0.080..1679.921 rows=2400000.00 loops=1)
+              Heap Fetches: 1126010
+              Index Searches: 1
+              Buffers: shared hit=1222079 read=57491 dirtied=15232 written=12622
+Planning:
+  Buffers: shared hit=432 read=1
+Planning Time: 0.708 ms
+Execution Time: 1971.222 ms
+=== R18 run 2 ===
+Sort  (cost=253258.67..253800.78 rows=216844 width=39) (actual time=719.372..719.378 rows=240.00 loops=1)
+  Sort Key: (count(*)) DESC, seller_id
+  Sort Method: quicksort  Memory: 38kB
+  Buffers: shared hit=1034795 read=52406 written=1778
+  ->  GroupAggregate  (cost=0.43..228106.97 rows=216844 width=39) (actual time=0.718..719.277 rows=240.00 loops=1)
+        Group Key: seller_id, title, price
+        Filter: (count(*) > 1)
+        Rows Removed by Filter: 2399520
+        Buffers: shared hit=1034792 read=52406 written=1778
+        ->  Index Only Scan using idx_listings_seller_title_price on listings  (cost=0.43..195975.33 rows=2400000 width=31) (actual time=0.078..428.239 rows=2400000.00 loops=1)
+              Heap Fetches: 991210
+              Index Searches: 1
+              Buffers: shared hit=1034792 read=52406 written=1778
+Planning:
+  Buffers: shared hit=374 read=59 written=3
+Planning Time: 1.799 ms
+Execution Time: 719.451 ms
+=== R18 run 3 ===
+Sort  (cost=253258.67..253800.78 rows=216844 width=39) (actual time=831.754..831.760 rows=240.00 loops=1)
+  Sort Key: (count(*)) DESC, seller_id
+  Sort Method: quicksort  Memory: 38kB
+  Buffers: shared hit=1034795 read=52406
+  ->  GroupAggregate  (cost=0.43..228106.97 rows=216844 width=39) (actual time=0.301..831.624 rows=240.00 loops=1)
+        Group Key: seller_id, title, price
+        Filter: (count(*) > 1)
+        Rows Removed by Filter: 2399520
+        Buffers: shared hit=1034792 read=52406
+        ->  Index Only Scan using idx_listings_seller_title_price on listings  (cost=0.43..195975.33 rows=2400000 width=31) (actual time=0.044..508.383 rows=2400000.00 loops=1)
+              Heap Fetches: 991210
+              Index Searches: 1
+              Buffers: shared hit=1034792 read=52406
+Planning:
+  Buffers: shared hit=374 read=59
+Planning Time: 1.283 ms
+Execution Time: 831.813 ms

@@ -1,0 +1,78 @@
+=== R21 run 1 ===
+Nested Loop  (cost=12246.66..12415.14 rows=20 width=60) (actual time=36.936..43.650 rows=20.00 loops=1)
+  Buffers: shared hit=35 read=916
+  ->  Limit  (cost=12246.24..12246.29 rows=20 width=48) (actual time=36.274..36.276 rows=20.00 loops=1)
+        Buffers: shared hit=6 read=865
+        ->  Sort  (cost=12246.24..12371.53 rows=50115 width=48) (actual time=36.274..36.275 rows=20.00 loops=1)
+              Sort Key: (round(avg(r.stars), 2)) DESC, (count(*)) DESC
+              Sort Method: top-N heapsort  Memory: 27kB
+              Buffers: shared hit=6 read=865
+              ->  GroupAggregate  (cost=0.42..10912.70 rows=50115 width=48) (actual time=0.434..36.224 rows=280.00 loops=1)
+                    Group Key: r.seller_id
+                    Filter: (count(*) >= 5)
+                    Rows Removed by Filter: 176500
+                    Buffers: shared read=865
+                    ->  Index Only Scan using idx_seller_ratings_seller_stars on seller_ratings r  (cost=0.42..6845.62 rows=224880 width=10) (actual time=0.422..10.232 rows=224880.00 loops=1)
+                          Heap Fetches: 0
+                          Index Searches: 1
+                          Buffers: shared read=865
+  ->  Index Scan using users_pkey on users u  (cost=0.42..8.44 rows=1 width=20) (actual time=0.368..0.368 rows=1.00 loops=20)
+        Index Cond: (user_id = r.seller_id)
+        Index Searches: 20
+        Buffers: shared hit=29 read=51
+Planning:
+  Buffers: shared hit=208 read=14
+Planning Time: 1.272 ms
+Execution Time: 43.676 ms
+=== R21 run 2 ===
+Nested Loop  (cost=12246.66..12415.14 rows=20 width=60) (actual time=33.891..33.955 rows=20.00 loops=1)
+  Buffers: shared hit=951
+  ->  Limit  (cost=12246.24..12246.29 rows=20 width=48) (actual time=33.882..33.883 rows=20.00 loops=1)
+        Buffers: shared hit=871
+        ->  Sort  (cost=12246.24..12371.53 rows=50115 width=48) (actual time=33.881..33.882 rows=20.00 loops=1)
+              Sort Key: (round(avg(r.stars), 2)) DESC, (count(*)) DESC
+              Sort Method: top-N heapsort  Memory: 27kB
+              Buffers: shared hit=871
+              ->  GroupAggregate  (cost=0.42..10912.70 rows=50115 width=48) (actual time=0.037..33.839 rows=280.00 loops=1)
+                    Group Key: r.seller_id
+                    Filter: (count(*) >= 5)
+                    Rows Removed by Filter: 176500
+                    Buffers: shared hit=865
+                    ->  Index Only Scan using idx_seller_ratings_seller_stars on seller_ratings r  (cost=0.42..6845.62 rows=224880 width=10) (actual time=0.026..7.707 rows=224880.00 loops=1)
+                          Heap Fetches: 0
+                          Index Searches: 1
+                          Buffers: shared hit=865
+  ->  Index Scan using users_pkey on users u  (cost=0.42..8.44 rows=1 width=20) (actual time=0.003..0.003 rows=1.00 loops=20)
+        Index Cond: (user_id = r.seller_id)
+        Index Searches: 20
+        Buffers: shared hit=80
+Planning:
+  Buffers: shared hit=222
+Planning Time: 0.367 ms
+Execution Time: 33.978 ms
+=== R21 run 3 ===
+Nested Loop  (cost=12246.66..12415.14 rows=20 width=60) (actual time=34.652..34.716 rows=20.00 loops=1)
+  Buffers: shared hit=951
+  ->  Limit  (cost=12246.24..12246.29 rows=20 width=48) (actual time=34.642..34.643 rows=20.00 loops=1)
+        Buffers: shared hit=871
+        ->  Sort  (cost=12246.24..12371.53 rows=50115 width=48) (actual time=34.641..34.642 rows=20.00 loops=1)
+              Sort Key: (round(avg(r.stars), 2)) DESC, (count(*)) DESC
+              Sort Method: top-N heapsort  Memory: 27kB
+              Buffers: shared hit=871
+              ->  GroupAggregate  (cost=0.42..10912.70 rows=50115 width=48) (actual time=0.034..34.599 rows=280.00 loops=1)
+                    Group Key: r.seller_id
+                    Filter: (count(*) >= 5)
+                    Rows Removed by Filter: 176500
+                    Buffers: shared hit=865
+                    ->  Index Only Scan using idx_seller_ratings_seller_stars on seller_ratings r  (cost=0.42..6845.62 rows=224880 width=10) (actual time=0.024..7.788 rows=224880.00 loops=1)
+                          Heap Fetches: 0
+                          Index Searches: 1
+                          Buffers: shared hit=865
+  ->  Index Scan using users_pkey on users u  (cost=0.42..8.44 rows=1 width=20) (actual time=0.003..0.003 rows=1.00 loops=20)
+        Index Cond: (user_id = r.seller_id)
+        Index Searches: 20
+        Buffers: shared hit=80
+Planning:
+  Buffers: shared hit=222
+Planning Time: 0.351 ms
+Execution Time: 34.740 ms

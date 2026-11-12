@@ -1,0 +1,31 @@
+query_id,type,avg_ms,median_ms,min_ms,max_ms,scan_nodes
+R01,READ,13.557,12.536,9.453,18.682,Seq Scan on listings
+R02,READ,12.182,10.424,9.480,16.643,Seq Scan on listings
+R03,READ,17.554,16.861,16.108,19.694,Seq Scan on listings
+R04,READ,0.609,0.571,0.485,0.770,Index Scan using listings_pkey on listings | Index Scan using users_pkey on users | Seq Scan on seller_ratings
+R05,READ,8.892,8.891,8.847,8.938,Seq Scan on listings
+R06,READ,72.997,68.756,68.576,81.660,Seq Scan on listings | Seq Scan on chat_threads | Seq Scan on chat_messages
+R07,READ,7.213,7.211,7.193,7.235,Seq Scan on chat_messages | Index Scan using chat_threads_pkey on chat_threads | Index Scan using listings_pkey on listings
+R08,READ,6.735,6.628,6.402,7.176,Seq Scan on listings
+R09,READ,8.022,7.909,7.655,8.502,Seq Scan on listings
+R10,READ,7.321,7.267,7.076,7.621,Seq Scan on listings
+R11,READ,2.365,2.367,2.173,2.554,Seq Scan on reports | Index Scan using listings_pkey on listings
+R12,READ,40.137,39.155,38.920,42.335,Seq Scan on listings
+R13,READ,15.019,15.074,14.862,15.121,Seq Scan on boost_packages | Seq Scan on listings
+R14,READ,9.877,9.951,9.444,10.236,Seq Scan on listings | Seq Scan on categories
+R15,READ,11.091,10.857,10.704,11.711,Seq Scan on listings | Seq Scan on offers | Seq Scan on categories
+R16,READ,12.296,12.341,12.168,12.378,Seq Scan on listings | Seq Scan on favourites
+R17,READ,15.696,13.798,13.528,19.761,Seq Scan on listings | Seq Scan on categories
+R18,READ,39.660,40.361,37.131,41.488,Seq Scan on listings
+R19,READ,1196.778,1196.912,1193.979,1199.444,Seq Scan on listings | Index Only Scan using uq_chat_threads_listing_buyer on chat_threads | Seq Scan on chat_messages | Index Scan using uq_chat_threads_listing_buyer on chat_threads
+R20,READ,8.027,7.984,7.862,8.234,Seq Scan on listings
+R21,READ,9.551,9.680,9.218,9.755,Seq Scan on seller_ratings | Seq Scan on users
+R22,READ,31.374,31.676,30.480,31.965,Seq Scan on listings
+R23,READ,0.027,0.028,0.023,0.029,Index Scan using users_phone_key on users
+R24,READ,16.275,14.658,13.496,20.670,Seq Scan on listings | Seq Scan on categories
+R25,READ,50.824,46.183,41.921,64.368,Seq Scan on chat_messages | Seq Scan on chat_threads | Seq Scan on listings | Seq Scan on categories
+W01,WRITE,0.808,0.754,0.734,0.935,(no scan)
+W02,WRITE,11.832,11.558,11.108,12.830,Seq Scan on listings | Index Scan using listings_pkey on listings
+W03,WRITE,0.580,0.614,0.435,0.691,Index Scan using chat_threads_pkey on chat_threads
+W04,WRITE,21.343,21.724,18.669,23.637,Seq Scan on listings
+W05,WRITE,1.817,1.809,1.794,1.849,Seq Scan on offers

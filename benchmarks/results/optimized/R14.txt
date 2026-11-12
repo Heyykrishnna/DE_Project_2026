@@ -1,0 +1,78 @@
+=== R14 run 1 ===
+Sort  (cost=303.81..303.84 rows=12 width=49) (actual time=4.964..4.965 rows=9.00 loops=1)
+  Sort Key: (round(avg((EXTRACT(epoch FROM (l.sold_at - l.posted_at)) / '86400'::numeric)), 1))
+  Sort Method: quicksort  Memory: 25kB
+  Buffers: shared hit=4 read=73
+  ->  HashAggregate  (cost=303.41..303.59 rows=12 width=49) (actual time=4.953..4.955 rows=9.00 loops=1)
+        Group Key: c.category_name
+        Batches: 1  Memory Usage: 32kB
+        Buffers: shared hit=1 read=73
+        ->  Hash Join  (cost=1.56..226.43 rows=5132 width=25) (actual time=0.057..2.017 rows=14153.00 loops=1)
+              Hash Cond: (l.category_id = c.category_id)
+              Buffers: shared hit=1 read=73
+              ->  Index Only Scan using idx_listings_sold_at_cat on listings l  (cost=0.29..206.93 rows=5132 width=18) (actual time=0.025..0.733 rows=14153.00 loops=1)
+                    Index Cond: ((sold_at >= '2026-01-01 00:00:00+05:30'::timestamp with time zone) AND (sold_at < '2027-01-01 00:00:00+05:30'::timestamp with time zone))
+                    Heap Fetches: 0
+                    Index Searches: 1
+                    Buffers: shared hit=1 read=72
+              ->  Hash  (cost=1.12..1.12 rows=12 width=11) (actual time=0.029..0.029 rows=12.00 loops=1)
+                    Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                    Buffers: shared read=1
+                    ->  Seq Scan on categories c  (cost=0.00..1.12 rows=12 width=11) (actual time=0.025..0.026 rows=12.00 loops=1)
+                          Buffers: shared read=1
+Planning:
+  Buffers: shared hit=546 read=1
+Planning Time: 0.773 ms
+Execution Time: 5.001 ms
+=== R14 run 2 ===
+Sort  (cost=303.81..303.84 rows=12 width=49) (actual time=4.502..4.503 rows=9.00 loops=1)
+  Sort Key: (round(avg((EXTRACT(epoch FROM (l.sold_at - l.posted_at)) / '86400'::numeric)), 1))
+  Sort Method: quicksort  Memory: 25kB
+  Buffers: shared hit=77
+  ->  HashAggregate  (cost=303.41..303.59 rows=12 width=49) (actual time=4.489..4.492 rows=9.00 loops=1)
+        Group Key: c.category_name
+        Batches: 1  Memory Usage: 32kB
+        Buffers: shared hit=74
+        ->  Hash Join  (cost=1.56..226.43 rows=5132 width=25) (actual time=0.031..1.782 rows=14153.00 loops=1)
+              Hash Cond: (l.category_id = c.category_id)
+              Buffers: shared hit=74
+              ->  Index Only Scan using idx_listings_sold_at_cat on listings l  (cost=0.29..206.93 rows=5132 width=18) (actual time=0.020..0.589 rows=14153.00 loops=1)
+                    Index Cond: ((sold_at >= '2026-01-01 00:00:00+05:30'::timestamp with time zone) AND (sold_at < '2027-01-01 00:00:00+05:30'::timestamp with time zone))
+                    Heap Fetches: 0
+                    Index Searches: 1
+                    Buffers: shared hit=73
+              ->  Hash  (cost=1.12..1.12 rows=12 width=11) (actual time=0.007..0.007 rows=12.00 loops=1)
+                    Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                    Buffers: shared hit=1
+                    ->  Seq Scan on categories c  (cost=0.00..1.12 rows=12 width=11) (actual time=0.003..0.004 rows=12.00 loops=1)
+                          Buffers: shared hit=1
+Planning:
+  Buffers: shared hit=547
+Planning Time: 0.757 ms
+Execution Time: 4.543 ms
+=== R14 run 3 ===
+Sort  (cost=303.81..303.84 rows=12 width=49) (actual time=4.260..4.261 rows=9.00 loops=1)
+  Sort Key: (round(avg((EXTRACT(epoch FROM (l.sold_at - l.posted_at)) / '86400'::numeric)), 1))
+  Sort Method: quicksort  Memory: 25kB
+  Buffers: shared hit=77
+  ->  HashAggregate  (cost=303.41..303.59 rows=12 width=49) (actual time=4.245..4.248 rows=9.00 loops=1)
+        Group Key: c.category_name
+        Batches: 1  Memory Usage: 32kB
+        Buffers: shared hit=74
+        ->  Hash Join  (cost=1.56..226.43 rows=5132 width=25) (actual time=0.041..1.700 rows=14153.00 loops=1)
+              Hash Cond: (l.category_id = c.category_id)
+              Buffers: shared hit=74
+              ->  Index Only Scan using idx_listings_sold_at_cat on listings l  (cost=0.29..206.93 rows=5132 width=18) (actual time=0.028..0.581 rows=14153.00 loops=1)
+                    Index Cond: ((sold_at >= '2026-01-01 00:00:00+05:30'::timestamp with time zone) AND (sold_at < '2027-01-01 00:00:00+05:30'::timestamp with time zone))
+                    Heap Fetches: 0
+                    Index Searches: 1
+                    Buffers: shared hit=73
+              ->  Hash  (cost=1.12..1.12 rows=12 width=11) (actual time=0.009..0.009 rows=12.00 loops=1)
+                    Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                    Buffers: shared hit=1
+                    ->  Seq Scan on categories c  (cost=0.00..1.12 rows=12 width=11) (actual time=0.005..0.005 rows=12.00 loops=1)
+                          Buffers: shared hit=1
+Planning:
+  Buffers: shared hit=547
+Planning Time: 0.794 ms
+Execution Time: 4.304 ms

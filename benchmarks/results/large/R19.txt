@@ -1,0 +1,135 @@
+=== R19 run 1 ===
+Sort  (cost=39522.58..39536.74 rows=5661 width=41) (actual time=625.240..625.432 rows=5580.00 loops=1)
+  Sort Key: (count(DISTINCT t.thread_id)) DESC
+  Sort Method: quicksort  Memory: 517kB
+  Buffers: shared hit=21829 read=12767
+  ->  GroupAggregate  (cost=34257.32..39169.71 rows=5661 width=41) (actual time=203.702..624.611 rows=5580.00 loops=1)
+        Group Key: l.listing_id
+        Buffers: shared hit=21829 read=12767
+        ->  Nested Loop Left Join  (cost=34257.32..38964.48 rows=19816 width=41) (actual time=203.695..622.820 rows=14840.00 loops=1)
+              Buffers: shared hit=21829 read=12767
+              ->  Gather Merge  (cost=34256.89..34916.20 rows=5661 width=33) (actual time=203.685..204.437 rows=6360.00 loops=1)
+                    Workers Planned: 2
+                    Workers Launched: 2
+                    Buffers: shared hit=15406 read=9504
+                    ->  Sort  (cost=33256.86..33262.76 rows=2359 width=33) (actual time=200.599..200.659 rows=2120.00 loops=3)
+                          Sort Key: l.listing_id, t.thread_id
+                          Sort Method: quicksort  Memory: 204kB
+                          Buffers: shared hit=15406 read=9504
+                          Worker 0:  Sort Method: quicksort  Memory: 201kB
+                          Worker 1:  Sort Method: quicksort  Memory: 208kB
+                          ->  Nested Loop Left Join  (cost=466.87..33124.71 rows=2359 width=33) (actual time=1.583..200.034 rows=2120.00 loops=3)
+                                Buffers: shared hit=15390 read=9504
+                                ->  Parallel Bitmap Heap Scan on listings l  (cost=466.45..18459.93 rows=2359 width=25) (actual time=1.268..8.438 rows=1860.00 loops=3)
+                                      Recheck Cond: ((category_id = 2) AND (city_id = 1) AND ((status)::text = 'ACTIVE'::text))
+                                      Heap Blocks: exact=1562
+                                      Buffers: shared hit=447 read=4525
+                                      Worker 0:  Heap Blocks: exact=1553
+                                      Worker 1:  Heap Blocks: exact=1640
+                                      ->  Bitmap Index Scan on idx_listings_active_cat_city_posted  (cost=0.00..465.03 rows=5661 width=0) (actual time=3.260..3.260 rows=5580.00 loops=1)
+                                            Index Cond: ((category_id = 2) AND (city_id = 1))
+                                            Index Searches: 1
+                                            Buffers: shared hit=3 read=174
+                                ->  Index Scan using uq_chat_threads_listing_buyer on chat_threads t  (cost=0.43..6.21 rows=1 width=16) (actual time=0.089..0.103 rows=0.57 loops=5580)
+                                      Index Cond: (listing_id = l.listing_id)
+                                      Index Searches: 5580
+                                      Buffers: shared hit=14943 read=4979
+              ->  Index Only Scan using idx_chat_messages_thread_sent on chat_messages m  (cost=0.43..0.66 rows=6 width=16) (actual time=0.065..0.066 rows=1.83 loops=6360)
+                    Index Cond: (thread_id = t.thread_id)
+                    Heap Fetches: 0
+                    Index Searches: 3180
+                    Buffers: shared hit=6423 read=3263
+Planning:
+  Buffers: shared hit=568 read=93
+Planning Time: 5.628 ms
+Execution Time: 625.570 ms
+=== R19 run 2 ===
+Sort  (cost=39522.58..39536.74 rows=5661 width=41) (actual time=22.688..22.823 rows=5580.00 loops=1)
+  Sort Key: (count(DISTINCT t.thread_id)) DESC
+  Sort Method: quicksort  Memory: 517kB
+  Buffers: shared hit=25895 read=8701
+  ->  GroupAggregate  (cost=34257.32..39169.71 rows=5661 width=41) (actual time=14.344..22.356 rows=5580.00 loops=1)
+        Group Key: l.listing_id
+        Buffers: shared hit=25895 read=8701
+        ->  Nested Loop Left Join  (cost=34257.32..38964.48 rows=19816 width=41) (actual time=14.339..21.336 rows=14840.00 loops=1)
+              Buffers: shared hit=25895 read=8701
+              ->  Gather Merge  (cost=34256.89..34916.20 rows=5661 width=33) (actual time=14.329..14.722 rows=6360.00 loops=1)
+                    Workers Planned: 2
+                    Workers Launched: 2
+                    Buffers: shared hit=16624 read=8286
+                    ->  Sort  (cost=33256.86..33262.76 rows=2359 width=33) (actual time=11.852..11.895 rows=2120.00 loops=3)
+                          Sort Key: l.listing_id, t.thread_id
+                          Sort Method: quicksort  Memory: 210kB
+                          Buffers: shared hit=16624 read=8286
+                          Worker 0:  Sort Method: quicksort  Memory: 152kB
+                          Worker 1:  Sort Method: quicksort  Memory: 203kB
+                          ->  Nested Loop Left Join  (cost=466.87..33124.71 rows=2359 width=33) (actual time=0.663..11.603 rows=2120.00 loops=3)
+                                Buffers: shared hit=16608 read=8286
+                                ->  Parallel Bitmap Heap Scan on listings l  (cost=466.45..18459.93 rows=2359 width=25) (actual time=0.636..4.132 rows=1860.00 loops=3)
+                                      Recheck Cond: ((category_id = 2) AND (city_id = 1) AND ((status)::text = 'ACTIVE'::text))
+                                      Heap Blocks: exact=1680
+                                      Buffers: shared hit=335 read=4637
+                                      Worker 0:  Heap Blocks: exact=1528
+                                      Worker 1:  Heap Blocks: exact=1547
+                                      ->  Bitmap Index Scan on idx_listings_active_cat_city_posted  (cost=0.00..465.03 rows=5661 width=0) (actual time=1.299..1.299 rows=5580.00 loops=1)
+                                            Index Cond: ((category_id = 2) AND (city_id = 1))
+                                            Index Searches: 1
+                                            Buffers: shared hit=3 read=174
+                                ->  Index Scan using uq_chat_threads_listing_buyer on chat_threads t  (cost=0.43..6.21 rows=1 width=16) (actual time=0.003..0.004 rows=0.57 loops=5580)
+                                      Index Cond: (listing_id = l.listing_id)
+                                      Index Searches: 5580
+                                      Buffers: shared hit=16273 read=3649
+              ->  Index Only Scan using idx_chat_messages_thread_sent on chat_messages m  (cost=0.43..0.66 rows=6 width=16) (actual time=0.001..0.001 rows=1.83 loops=6360)
+                    Index Cond: (thread_id = t.thread_id)
+                    Heap Fetches: 0
+                    Index Searches: 3180
+                    Buffers: shared hit=9271 read=415
+Planning:
+  Buffers: shared hit=604 read=57
+Planning Time: 1.758 ms
+Execution Time: 22.985 ms
+=== R19 run 3 ===
+Sort  (cost=39522.58..39536.74 rows=5661 width=41) (actual time=14.187..14.323 rows=5580.00 loops=1)
+  Sort Key: (count(DISTINCT t.thread_id)) DESC
+  Sort Method: quicksort  Memory: 517kB
+  Buffers: shared hit=34596
+  ->  GroupAggregate  (cost=34257.32..39169.71 rows=5661 width=41) (actual time=6.625..13.859 rows=5580.00 loops=1)
+        Group Key: l.listing_id
+        Buffers: shared hit=34596
+        ->  Nested Loop Left Join  (cost=34257.32..38964.48 rows=19816 width=41) (actual time=6.621..12.876 rows=14840.00 loops=1)
+              Buffers: shared hit=34596
+              ->  Gather Merge  (cost=34256.89..34916.20 rows=5661 width=33) (actual time=6.618..7.004 rows=6360.00 loops=1)
+                    Workers Planned: 2
+                    Workers Launched: 2
+                    Buffers: shared hit=24910
+                    ->  Sort  (cost=33256.86..33262.76 rows=2359 width=33) (actual time=5.320..5.360 rows=2120.00 loops=3)
+                          Sort Key: l.listing_id, t.thread_id
+                          Sort Method: quicksort  Memory: 218kB
+                          Buffers: shared hit=24910
+                          Worker 0:  Sort Method: quicksort  Memory: 149kB
+                          Worker 1:  Sort Method: quicksort  Memory: 149kB
+                          ->  Nested Loop Left Join  (cost=466.87..33124.71 rows=2359 width=33) (actual time=0.367..5.152 rows=2120.00 loops=3)
+                                Buffers: shared hit=24894
+                                ->  Parallel Bitmap Heap Scan on listings l  (cost=466.45..18459.93 rows=2359 width=25) (actual time=0.359..1.768 rows=1860.00 loops=3)
+                                      Recheck Cond: ((category_id = 2) AND (city_id = 1) AND ((status)::text = 'ACTIVE'::text))
+                                      Heap Blocks: exact=1799
+                                      Buffers: shared hit=4972
+                                      Worker 0:  Heap Blocks: exact=1447
+                                      Worker 1:  Heap Blocks: exact=1509
+                                      ->  Bitmap Index Scan on idx_listings_active_cat_city_posted  (cost=0.00..465.03 rows=5661 width=0) (actual time=0.606..0.606 rows=5580.00 loops=1)
+                                            Index Cond: ((category_id = 2) AND (city_id = 1))
+                                            Index Searches: 1
+                                            Buffers: shared hit=177
+                                ->  Index Scan using uq_chat_threads_listing_buyer on chat_threads t  (cost=0.43..6.21 rows=1 width=16) (actual time=0.002..0.002 rows=0.57 loops=5580)
+                                      Index Cond: (listing_id = l.listing_id)
+                                      Index Searches: 5580
+                                      Buffers: shared hit=19922
+              ->  Index Only Scan using idx_chat_messages_thread_sent on chat_messages m  (cost=0.43..0.66 rows=6 width=16) (actual time=0.001..0.001 rows=1.83 loops=6360)
+                    Index Cond: (thread_id = t.thread_id)
+                    Heap Fetches: 0
+                    Index Searches: 3180
+                    Buffers: shared hit=9686
+Planning:
+  Buffers: shared hit=661
+Planning Time: 0.985 ms
+Execution Time: 14.461 ms

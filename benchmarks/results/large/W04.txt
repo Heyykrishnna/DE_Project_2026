@@ -1,0 +1,45 @@
+=== W04 run 1 ===
+Update on listings  (cost=6428.14..122967.97 rows=0 width=0) (actual time=11111.842..11111.847 rows=0.00 loops=1)
+  Buffers: shared hit=842256 read=83459 dirtied=81508 written=66732
+  ->  Bitmap Heap Scan on listings  (cost=6428.14..122967.97 rows=188867 width=64) (actual time=12.934..232.097 rows=45120.00 loops=1)
+        Recheck Cond: ((expires_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone) AND ((status)::text = 'ACTIVE'::text))
+        Heap Blocks: exact=34945
+        Buffers: shared hit=384 read=34862 written=24743
+        ->  Bitmap Index Scan on idx_listings_active_expires  (cost=0.00..6380.92 rows=188867 width=0) (actual time=8.234..8.239 rows=45120.00 loops=1)
+              Index Cond: (expires_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone)
+              Index Searches: 1
+              Buffers: shared hit=1 read=300
+Planning:
+  Buffers: shared hit=357
+Planning Time: 1.228 ms
+Execution Time: 11111.969 ms
+=== W04 run 2 ===
+Update on listings  (cost=6537.03..125259.13 rows=0 width=0) (actual time=10105.867..10105.868 rows=0.00 loops=1)
+  Buffers: shared hit=836617 read=88700 dirtied=87250 written=84932
+  ->  Bitmap Heap Scan on listings  (cost=6537.03..125259.13 rows=192079 width=64) (actual time=8.536..3731.493 rows=45120.00 loops=1)
+        Recheck Cond: ((expires_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone) AND ((status)::text = 'ACTIVE'::text))
+        Heap Blocks: exact=34945
+        Buffers: shared hit=276 read=34970 dirtied=34448 written=29638
+        ->  Bitmap Index Scan on idx_listings_active_expires  (cost=0.00..6489.01 rows=192079 width=0) (actual time=5.310..5.312 rows=45120.00 loops=1)
+              Index Cond: (expires_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone)
+              Index Searches: 1
+              Buffers: shared read=301 written=265
+Planning:
+  Buffers: shared hit=303 read=54 written=34
+Planning Time: 5.172 ms
+Execution Time: 10106.374 ms
+=== W04 run 3 ===
+Update on listings  (cost=6646.04..127560.14 rows=0 width=0) (actual time=9990.076..9990.078 rows=0.00 loops=1)
+  Buffers: shared hit=825575 read=91301 dirtied=85772 written=82460
+  ->  Bitmap Heap Scan on listings  (cost=6646.04..127560.14 rows=195306 width=64) (actual time=11.473..3270.933 rows=45120.00 loops=1)
+        Recheck Cond: ((expires_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone) AND ((status)::text = 'ACTIVE'::text))
+        Heap Blocks: exact=34945
+        Buffers: shared hit=100 read=35146 dirtied=34584 written=30083
+        ->  Bitmap Index Scan on idx_listings_active_expires  (cost=0.00..6597.22 rows=195306 width=0) (actual time=8.561..8.563 rows=45120.00 loops=1)
+              Index Cond: (expires_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone)
+              Index Searches: 1
+              Buffers: shared read=301 written=286
+Planning:
+  Buffers: shared hit=303 read=54 written=49
+Planning Time: 1.448 ms
+Execution Time: 9990.217 ms

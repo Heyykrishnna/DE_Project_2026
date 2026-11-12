@@ -1,0 +1,36 @@
+=== W01 run 1 ===
+Insert on listings  (cost=0.00..0.01 rows=0 width=0) (actual time=0.184..0.184 rows=0.00 loops=1)
+  Buffers: shared hit=85
+  ->  Result  (cost=0.00..0.01 rows=1 width=813) (actual time=0.002..0.002 rows=1.00 loops=1)
+Planning:
+  Buffers: shared hit=3
+Planning Time: 0.044 ms
+Trigger for constraint listings_seller_id_fkey: time=0.265 calls=1
+Trigger for constraint listings_category_id_fkey: time=0.115 calls=1
+Trigger for constraint listings_city_id_fkey: time=0.116 calls=1
+Trigger for constraint listings_boost_package_id_fkey: time=0.009 calls=1
+Execution Time: 0.935 ms
+=== W01 run 2 ===
+Insert on listings  (cost=0.00..0.01 rows=0 width=0) (actual time=0.174..0.174 rows=0.00 loops=1)
+  Buffers: shared hit=86
+  ->  Result  (cost=0.00..0.01 rows=1 width=813) (actual time=0.002..0.002 rows=1.00 loops=1)
+Planning:
+  Buffers: shared hit=3
+Planning Time: 0.043 ms
+Trigger for constraint listings_seller_id_fkey: time=0.286 calls=1
+Trigger for constraint listings_category_id_fkey: time=0.127 calls=1
+Trigger for constraint listings_city_id_fkey: time=0.123 calls=1
+Trigger for constraint listings_boost_package_id_fkey: time=0.010 calls=1
+Execution Time: 0.734 ms
+=== W01 run 3 ===
+Insert on listings  (cost=0.00..0.01 rows=0 width=0) (actual time=0.174..0.174 rows=0.00 loops=1)
+  Buffers: shared hit=86
+  ->  Result  (cost=0.00..0.01 rows=1 width=813) (actual time=0.002..0.003 rows=1.00 loops=1)
+Planning:
+  Buffers: shared hit=3
+Planning Time: 0.047 ms
+Trigger for constraint listings_seller_id_fkey: time=0.335 calls=1
+Trigger for constraint listings_category_id_fkey: time=0.120 calls=1
+Trigger for constraint listings_city_id_fkey: time=0.101 calls=1
+Trigger for constraint listings_boost_package_id_fkey: time=0.010 calls=1
+Execution Time: 0.754 ms

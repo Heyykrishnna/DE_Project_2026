@@ -1,0 +1,51 @@
+=== R12 run 1 ===
+Sort  (cost=11475.74..11575.63 rows=39953 width=20) (actual time=41.462..41.463 rows=30.00 loops=1)
+  Sort Key: (count(*)) DESC, ((posted_at)::date)
+  Sort Method: quicksort  Memory: 26kB
+  Buffers: shared hit=4430, temp read=80 written=150
+  ->  HashAggregate  (cost=6824.00..8422.13 rows=39953 width=20) (actual time=31.088..41.447 rows=30.00 loops=1)
+        Group Key: seller_id, (posted_at)::date
+        Filter: (count(*) >= 5)
+        Batches: 5  Memory Usage: 9017kB  Disk Usage: 736kB
+        Rows Removed by Filter: 119414
+        Buffers: shared hit=4424, temp read=80 written=150
+        ->  Seq Scan on listings  (cost=0.00..5924.00 rows=120000 width=12) (actual time=0.006..17.958 rows=120000.00 loops=1)
+              Buffers: shared hit=4424
+Planning:
+  Buffers: shared hit=108
+Planning Time: 0.145 ms
+Execution Time: 42.335 ms
+=== R12 run 2 ===
+Sort  (cost=11475.74..11575.63 rows=39953 width=20) (actual time=38.116..38.117 rows=30.00 loops=1)
+  Sort Key: (count(*)) DESC, ((posted_at)::date)
+  Sort Method: quicksort  Memory: 26kB
+  Buffers: shared hit=4430, temp read=80 written=150
+  ->  HashAggregate  (cost=6824.00..8422.13 rows=39953 width=20) (actual time=28.719..38.098 rows=30.00 loops=1)
+        Group Key: seller_id, (posted_at)::date
+        Filter: (count(*) >= 5)
+        Batches: 5  Memory Usage: 9017kB  Disk Usage: 736kB
+        Rows Removed by Filter: 119414
+        Buffers: shared hit=4424, temp read=80 written=150
+        ->  Seq Scan on listings  (cost=0.00..5924.00 rows=120000 width=12) (actual time=0.008..16.639 rows=120000.00 loops=1)
+              Buffers: shared hit=4424
+Planning:
+  Buffers: shared hit=108
+Planning Time: 0.155 ms
+Execution Time: 38.920 ms
+=== R12 run 3 ===
+Sort  (cost=11475.74..11575.63 rows=39953 width=20) (actual time=38.717..38.719 rows=30.00 loops=1)
+  Sort Key: (count(*)) DESC, ((posted_at)::date)
+  Sort Method: quicksort  Memory: 26kB
+  Buffers: shared hit=4430, temp read=80 written=150
+  ->  HashAggregate  (cost=6824.00..8422.13 rows=39953 width=20) (actual time=30.299..38.704 rows=30.00 loops=1)
+        Group Key: seller_id, (posted_at)::date
+        Filter: (count(*) >= 5)
+        Batches: 5  Memory Usage: 9017kB  Disk Usage: 736kB
+        Rows Removed by Filter: 119414
+        Buffers: shared hit=4424, temp read=80 written=150
+        ->  Seq Scan on listings  (cost=0.00..5924.00 rows=120000 width=12) (actual time=0.007..15.883 rows=120000.00 loops=1)
+              Buffers: shared hit=4424
+Planning:
+  Buffers: shared hit=108
+Planning Time: 0.162 ms
+Execution Time: 39.155 ms

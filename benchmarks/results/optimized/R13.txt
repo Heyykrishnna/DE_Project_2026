@@ -1,0 +1,42 @@
+=== R13 run 1 ===
+Nested Loop Anti Join  (cost=0.29..3.06 rows=2 width=24) (actual time=0.153..0.154 rows=2.00 loops=1)
+  Buffers: shared hit=7 read=7 written=7
+  ->  Seq Scan on boost_packages b  (cost=0.00..1.06 rows=6 width=24) (actual time=0.048..0.048 rows=6.00 loops=1)
+        Buffers: shared read=1 written=1
+  ->  Index Only Scan using idx_listings_boost_package on listings l  (cost=0.29..49.29 rows=2305 width=2) (actual time=0.017..0.017 rows=0.67 loops=6)
+        Index Cond: (boost_package_id = b.package_id)
+        Heap Fetches: 0
+        Index Searches: 6
+        Buffers: shared hit=7 read=6 written=6
+Planning:
+  Buffers: shared hit=508 read=1 written=1
+Planning Time: 0.734 ms
+Execution Time: 0.181 ms
+=== R13 run 2 ===
+Nested Loop Anti Join  (cost=0.29..3.06 rows=2 width=24) (actual time=0.033..0.033 rows=2.00 loops=1)
+  Buffers: shared hit=14
+  ->  Seq Scan on boost_packages b  (cost=0.00..1.06 rows=6 width=24) (actual time=0.003..0.004 rows=6.00 loops=1)
+        Buffers: shared hit=1
+  ->  Index Only Scan using idx_listings_boost_package on listings l  (cost=0.29..49.29 rows=2305 width=2) (actual time=0.005..0.005 rows=0.67 loops=6)
+        Index Cond: (boost_package_id = b.package_id)
+        Heap Fetches: 0
+        Index Searches: 6
+        Buffers: shared hit=13
+Planning:
+  Buffers: shared hit=509
+Planning Time: 0.640 ms
+Execution Time: 0.056 ms
+=== R13 run 3 ===
+Nested Loop Anti Join  (cost=0.29..3.06 rows=2 width=24) (actual time=0.038..0.039 rows=2.00 loops=1)
+  Buffers: shared hit=14
+  ->  Seq Scan on boost_packages b  (cost=0.00..1.06 rows=6 width=24) (actual time=0.004..0.004 rows=6.00 loops=1)
+        Buffers: shared hit=1
+  ->  Index Only Scan using idx_listings_boost_package on listings l  (cost=0.29..49.29 rows=2305 width=2) (actual time=0.005..0.005 rows=0.67 loops=6)
+        Index Cond: (boost_package_id = b.package_id)
+        Heap Fetches: 0
+        Index Searches: 6
+        Buffers: shared hit=13
+Planning:
+  Buffers: shared hit=509
+Planning Time: 0.724 ms
+Execution Time: 0.066 ms

@@ -1,0 +1,27 @@
+=== R02 run 1 ===
+Index Scan using idx_listings_active_cars_filter on listings  (cost=0.41..12.61 rows=2 width=107) (actual time=0.549..1.913 rows=100.00 loops=1)
+  Index Cond: ((city_id = 6) AND ((attributes ->> 'fuel'::text) = 'Diesel'::text) AND (((attributes ->> 'year'::text))::integer >= 2018) AND (((attributes ->> 'km_driven'::text))::integer <= 60000))
+  Index Searches: 2
+  Buffers: shared hit=13 read=122
+Planning:
+  Buffers: shared hit=461
+Planning Time: 1.401 ms
+Execution Time: 1.944 ms
+=== R02 run 2 ===
+Index Scan using idx_listings_active_cars_filter on listings  (cost=0.41..12.61 rows=2 width=107) (actual time=0.064..0.297 rows=100.00 loops=1)
+  Index Cond: ((city_id = 6) AND ((attributes ->> 'fuel'::text) = 'Diesel'::text) AND (((attributes ->> 'year'::text))::integer >= 2018) AND (((attributes ->> 'km_driven'::text))::integer <= 60000))
+  Index Searches: 2
+  Buffers: shared hit=135
+Planning:
+  Buffers: shared hit=461
+Planning Time: 2.400 ms
+Execution Time: 0.323 ms
+=== R02 run 3 ===
+Index Scan using idx_listings_active_cars_filter on listings  (cost=0.41..12.61 rows=2 width=107) (actual time=0.060..0.287 rows=100.00 loops=1)
+  Index Cond: ((city_id = 6) AND ((attributes ->> 'fuel'::text) = 'Diesel'::text) AND (((attributes ->> 'year'::text))::integer >= 2018) AND (((attributes ->> 'km_driven'::text))::integer <= 60000))
+  Index Searches: 2
+  Buffers: shared hit=135
+Planning:
+  Buffers: shared hit=461
+Planning Time: 1.554 ms
+Execution Time: 0.312 ms

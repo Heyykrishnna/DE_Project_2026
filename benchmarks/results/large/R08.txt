@@ -1,0 +1,72 @@
+=== R08 run 1 ===
+Sort  (cost=3320.55..3320.56 rows=4 width=22) (actual time=94.275..94.276 rows=4.00 loops=1)
+  Sort Key: (percentile_cont('0.5'::double precision) WITHIN GROUP (ORDER BY ((price)::double precision))) DESC
+  Sort Method: quicksort  Memory: 25kB
+  Buffers: shared hit=3845 read=16019 written=5891
+  ->  GroupAggregate  (cost=3309.59..3320.51 rows=4 width=22) (actual time=90.264..94.249 rows=4.00 loops=1)
+        Group Key: item_condition
+        Buffers: shared hit=3842 read=16019 written=5891
+        ->  Sort  (cost=3309.59..3311.76 rows=870 width=12) (actual time=89.532..90.146 rows=30000.00 loops=1)
+              Sort Key: item_condition
+              Sort Method: quicksort  Memory: 1706kB
+              Buffers: shared hit=3837 read=16019 written=5891
+              ->  Bitmap Heap Scan on listings  (cost=37.34..3267.11 rows=870 width=12) (actual time=17.009..85.594 rows=30000.00 loops=1)
+                    Recheck Cond: (((attributes ->> 'model'::text) = 'iPhone 13'::text) AND (posted_at >= '2026-01-01 00:00:00+05:30'::timestamp with time zone) AND (category_id = 5))
+                    Heap Blocks: exact=19606
+                    Buffers: shared hit=3834 read=16019 written=5891
+                    ->  Bitmap Index Scan on idx_listings_mobiles_model_posted  (cost=0.00..37.12 rows=870 width=0) (actual time=13.125..13.125 rows=31800.00 loops=1)
+                          Index Cond: (((attributes ->> 'model'::text) = 'iPhone 13'::text) AND (posted_at >= '2026-01-01 00:00:00+05:30'::timestamp with time zone))
+                          Index Searches: 1
+                          Buffers: shared read=247
+Planning:
+  Buffers: shared hit=426
+Planning Time: 2.350 ms
+Execution Time: 94.351 ms
+=== R08 run 2 ===
+Sort  (cost=3320.55..3320.56 rows=4 width=22) (actual time=32.558..32.560 rows=4.00 loops=1)
+  Sort Key: (percentile_cont('0.5'::double precision) WITHIN GROUP (ORDER BY ((price)::double precision))) DESC
+  Sort Method: quicksort  Memory: 25kB
+  Buffers: shared hit=1093 read=18771 written=7
+  ->  GroupAggregate  (cost=3309.59..3320.51 rows=4 width=22) (actual time=28.838..32.550 rows=4.00 loops=1)
+        Group Key: item_condition
+        Buffers: shared hit=1090 read=18771 written=7
+        ->  Sort  (cost=3309.59..3311.76 rows=870 width=12) (actual time=28.162..28.720 rows=30000.00 loops=1)
+              Sort Key: item_condition
+              Sort Method: quicksort  Memory: 1706kB
+              Buffers: shared hit=1085 read=18771 written=7
+              ->  Bitmap Heap Scan on listings  (cost=37.34..3267.11 rows=870 width=12) (actual time=3.601..25.324 rows=30000.00 loops=1)
+                    Recheck Cond: (((attributes ->> 'model'::text) = 'iPhone 13'::text) AND (posted_at >= '2026-01-01 00:00:00+05:30'::timestamp with time zone) AND (category_id = 5))
+                    Heap Blocks: exact=19606
+                    Buffers: shared hit=1082 read=18771 written=7
+                    ->  Bitmap Index Scan on idx_listings_mobiles_model_posted  (cost=0.00..37.12 rows=870 width=0) (actual time=2.043..2.045 rows=31800.00 loops=1)
+                          Index Cond: (((attributes ->> 'model'::text) = 'iPhone 13'::text) AND (posted_at >= '2026-01-01 00:00:00+05:30'::timestamp with time zone))
+                          Index Searches: 1
+                          Buffers: shared read=247
+Planning:
+  Buffers: shared hit=426
+Planning Time: 0.617 ms
+Execution Time: 32.585 ms
+=== R08 run 3 ===
+Sort  (cost=3320.55..3320.56 rows=4 width=22) (actual time=32.431..32.431 rows=4.00 loops=1)
+  Sort Key: (percentile_cont('0.5'::double precision) WITHIN GROUP (ORDER BY ((price)::double precision))) DESC
+  Sort Method: quicksort  Memory: 25kB
+  Buffers: shared hit=28 read=19836 written=5
+  ->  GroupAggregate  (cost=3309.59..3320.51 rows=4 width=22) (actual time=28.854..32.424 rows=4.00 loops=1)
+        Group Key: item_condition
+        Buffers: shared hit=25 read=19836 written=5
+        ->  Sort  (cost=3309.59..3311.76 rows=870 width=12) (actual time=28.210..28.754 rows=30000.00 loops=1)
+              Sort Key: item_condition
+              Sort Method: quicksort  Memory: 1706kB
+              Buffers: shared hit=20 read=19836 written=5
+              ->  Bitmap Heap Scan on listings  (cost=37.34..3267.11 rows=870 width=12) (actual time=3.197..25.339 rows=30000.00 loops=1)
+                    Recheck Cond: (((attributes ->> 'model'::text) = 'iPhone 13'::text) AND (posted_at >= '2026-01-01 00:00:00+05:30'::timestamp with time zone) AND (category_id = 5))
+                    Heap Blocks: exact=19606
+                    Buffers: shared hit=17 read=19836 written=5
+                    ->  Bitmap Index Scan on idx_listings_mobiles_model_posted  (cost=0.00..37.12 rows=870 width=0) (actual time=1.816..1.816 rows=31800.00 loops=1)
+                          Index Cond: (((attributes ->> 'model'::text) = 'iPhone 13'::text) AND (posted_at >= '2026-01-01 00:00:00+05:30'::timestamp with time zone))
+                          Index Searches: 1
+                          Buffers: shared read=247
+Planning:
+  Buffers: shared hit=425 read=1
+Planning Time: 0.522 ms
+Execution Time: 32.452 ms
