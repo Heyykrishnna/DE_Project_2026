@@ -17,8 +17,8 @@ OLX India is a consumer-to-consumer marketplace for pre-owned goods. Sellers lis
 ## Key Assumptions
 
 1. **Snapshot reference date:** The seed dataset spans 1 Jan 2025 to 30 Jun 2026; operational jobs (`R10`, `W04`, `W05`) treat `2026-07-01 00:00:00+05:30` as the current cutover timestamp.
-2. **Exact result equivalence:** Query optimizations must return the exact same result sets as the baseline queries, except where a baseline query has a SQL correctness bug (specifically `R13`, where `NOT IN` over nullable `boost_package_id` produces an empty set).
+2. **Result equivalence:** Every optimized query must produce the identical multiset of rows as the baseline workload. The only justified deviation is R13, where the baseline query contains a logical bug (NOT IN over a nullable column evaluating to UNKNOWN and returning zero rows); our rewrite fixes this behavior.
 3. **Time zone:** All timestamps carry explicit Indian Standard Time (`+05:30`) offsets and are stored in `TIMESTAMPTZ` (UTC internally).
 4. **Currency & scale:** Prices are in INR with 2 decimal places (`NUMERIC`); seed data has 120,000 listings and 20x projected scale is ~2.4M listings (~4.2M chat messages).
-5. **No application-layer caching or PostgreSQL config hacks:** All latency improvements must come from schema constraints, indexing, `VACUUM`/`ANALYZE`, query rewrites, and in-DB structures (e.g., materialized views for analytics where appropriate), keeping PostgreSQL planner/memory defaults intact.
+5. **Standard runtime constraints:** All performance improvements rely strictly on indexing, query restructuring, and database maintenance (VACUUM and ANALYZE). Server-level memory limits and planner switches remain at PostgreSQL defaults without artificial tuning.
 
