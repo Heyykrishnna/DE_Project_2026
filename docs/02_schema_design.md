@@ -221,7 +221,7 @@ PostgreSQL automatically creates unique B-tree indexes only for `PRIMARY KEY` an
 
 ## 5. Normalization & Functional Dependencies (3NF / BCNF)
 
-Every table satisfies **1NF** (atomic attributes; `listings.attributes` is stored as structured `JSONB` for polymorphic category-specific key/value specs rather than repeating columns across categories), **2NF** (no partial dependencies on composite keys—`favourites` is `{user_id, listing_id} -> saved_at`), **3NF**, and **BCNF** (every non-trivial FD `X -> Y` has a superkey `X` on the LHS), with one intentional denormalization examined below:
+All relations satisfy 1NF (atomic attributes, with category specifications structured in JSONB), 2NF (no partial key dependencies), 3NF, and BCNF (every non-trivial functional dependency X -> Y has a superkey X), with one intentional denormalization evaluated below:
 
 | Table | Candidate Keys | Non-Trivial Functional Dependencies | Normal Form |
 | --- | --- | --- | --- |
