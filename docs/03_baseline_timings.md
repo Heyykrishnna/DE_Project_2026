@@ -42,8 +42,8 @@ Measured on PostgreSQL 18.6 (`aarch64-apple-darwin`, MacBook Pro M4) against dat
 
 | Query | Scan Node(s) in Plan | Why It Is Slow or Fast |
 | --- | --- | --- |
-| **R01** | `Seq Scan on listings` | Slow: Parallel Seq Scan over all 120,000 `listings` rows (discards ~119,821) + top-N sort because no composite/partial index covers `(category_id, city_id, price, posted_at)` for active ads. |
-| **R02** | `Seq Scan on listings` | Slow: Parallel Seq Scan on all 120,000 `listings` evaluating JSONB `->>` casts on every row; no partial/expression/GIN index on `category_id`, `city_id`, or `attributes`. |
+| **R01** | `Seq Scan on listings` | Sequential scan across 120k listings (discards ~119.8k rows) followed by a top-N sort due to absence of composite index on category, city, price, and timestamp. |
+| **R02** | `Seq Scan on listings` | Parallel scan evaluating dynamic JSONB attribute casts for fuel, year, and mileage across all rows without supporting expression indexes. |
 | **R03** | `Seq Scan on listings` | Slow: Parallel Seq Scan over 120,000 `listings` running `ILIKE '%iphone 13%'` on every row + sort by `price`; no trigram GIN index on `title`. |
 | **R04** | `Index Scan using listings_pkey on listings | Index Scan using users_pkey on users | Seq Scan on seller_ratings` | Moderately fast: `listings_pkey` and `users_pkey` do instant PK lookups, but the correlated subquery on `seller_ratings` falls back to a Seq Scan over all 11,244 rows (`seller_id` is unindexed). |
 | **R05** | `Seq Scan on listings` | Slow: Full Seq Scan of 120,000 `listings` discarding 119,991 rows to find user 1042's 9 ads because `seller_id` is unindexed. |
