@@ -36,7 +36,7 @@ Measured on PostgreSQL 18.6 (`aarch64-apple-darwin`, MacBook Pro M4) against dat
 | W03: Chat: user 1042 sends a message in their most recent conversation as a buyer | WRITE | 0.691 | 0.614 | 0.435 | 0.580 |
 | W04: Nightly job: expire every active ad whose expiry date has passed (run at 00:00 on 1 July 2026) | WRITE | 23.637 | 21.724 | 18.669 | 21.343 |
 | W05: Seller accepts the highest pending offer on listing 118642 and rejects the others | WRITE | 1.849 | 1.809 | 1.794 | 1.817 |
-| **Total (sum of all 30)** | — | **1671.146** | **1621.256** | **1658.972** | **1650.458** |
+| **Total (all 30 queries)** | — | **1,671.146** | **1,621.256** | **1,658.972** | **1,650.458** |
 
 ## Scan Types & Bottleneck Analysis
 
