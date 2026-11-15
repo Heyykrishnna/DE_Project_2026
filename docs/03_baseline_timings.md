@@ -69,7 +69,7 @@ Measured on PostgreSQL 18.6 (`aarch64-apple-darwin`, MacBook Pro M4) against dat
 | **R25** | `Seq Scan on chat_messages | Seq Scan on chat_threads | Seq Scan on listings | Seq Scan on categories` | Analytical scan: Seq/Parallel Seq Scans on 209,529 `chat_messages`, 59,855 `chat_threads`, and 120,000 `listings` with `t.created_at >= 2026-01-01` unindexed. |
 | **W01** | `(no scan)` | Fast (0.808 ms): Single-row `INSERT` into `listings` with FK validations via PK indexes (`users_pkey`, `categories_pkey`, `cities_pkey`). |
 | **W02** | `Seq Scan on listings | Index Scan using listings_pkey on listings` | Slow for an OLTP write: Subquery runs a full Seq Scan over 120,000 `listings` to find `min(listing_id)` for `seller_id = 1042` before PK `UPDATE`. |
-| **W03** | `Index Scan using chat_threads_pkey on chat_threads` | Moderate: Uses `Index Scan Backward using chat_threads_pkey` scanning 3,365 threads until finding `buyer_id = 1042` (`buyer_id` has no index). |
+| **W03** | `Index Scan using chat_threads_pkey on chat_threads` | Uses a backward primary key scan over 3,365 threads until locating buyer 1042 due to absence of secondary index on buyer_id. |
 | **W04** | `Seq Scan on listings` | Slow: Full Seq Scan of 120,000 `listings` discarding 117,744 rows to update 2,256 expired active ads (`(status, expires_at)` unindexed). |
 | **W05** | `Seq Scan on offers` | Degrades with scale: Runs **two** full Seq Scans of `offers` (19,943 rows each) to locate `listing_id = 118642 AND status = 'PENDING'` because `offers(listing_id)` is unindexed. |
 
