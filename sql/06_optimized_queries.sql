@@ -107,7 +107,9 @@ ORDER BY expires_at;
 -- @R11
 SELECT q.listing_id, l.title, q.open_reports, q.reasons
 FROM (
-    SELECT r.listing_id, count(*) AS open_reports, array_agg(DISTINCT r.reason) AS reasons
+    SELECT r.listing_id,
+           count(*) AS open_reports,
+           array_agg(DISTINCT r.reason) AS reasons
     FROM reports r
     WHERE r.status = 'OPEN'
     GROUP BY r.listing_id
