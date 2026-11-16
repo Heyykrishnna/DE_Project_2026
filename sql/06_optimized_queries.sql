@@ -135,7 +135,8 @@ WHERE NOT EXISTS (
 );
 
 -- @R14
-SELECT c.category_name, count(*) AS sold,
+SELECT c.category_name,
+       count(*) AS sold,
        round(avg(EXTRACT(EPOCH FROM (l.sold_at - l.posted_at)) / 86400), 1) AS avg_days_to_sell
 FROM listings l
 JOIN categories c ON c.category_id = l.category_id
