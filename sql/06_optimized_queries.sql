@@ -65,13 +65,17 @@ SELECT (
     (SELECT count(*)
      FROM chat_threads t
      JOIN chat_messages m ON m.thread_id = t.thread_id
-     WHERE t.buyer_id = 1042 AND NOT m.is_read AND m.sender_id <> 1042)
+     WHERE t.buyer_id = 1042
+       AND NOT m.is_read
+       AND m.sender_id <> 1042)
     +
     (SELECT count(*)
      FROM listings l
      JOIN chat_threads t ON t.listing_id = l.listing_id
      JOIN chat_messages m ON m.thread_id = t.thread_id
-     WHERE l.seller_id = 1042 AND NOT m.is_read AND m.sender_id <> 1042)
+     WHERE l.seller_id = 1042
+       AND NOT m.is_read
+       AND m.sender_id <> 1042)
 ) AS unread;
 
 -- @R08
