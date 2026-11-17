@@ -1,8 +1,8 @@
 # Phase 4: Query Optimization Report
 
-All secondary indexes are defined in [sql/05_indexes.sql](../sql/05_indexes.sql) and query rewrites are in [sql/06_optimized_queries.sql](../sql/06_optimized_queries.sql). After creating the 20 indexes and running `VACUUM ANALYZE;`, all 30 queries were re-benchmarked 3 times via `./benchmarks/run_benchmark.sh olx_db optimized 3 sql/06_optimized_queries.sql` with default PostgreSQL memory and planner settings (`work_mem = 4MB`, `enable_seqscan = on`).
+This report summarizes the secondary indexing and query rewrite strategies implemented for the 30 project queries. All indexes are defined in [sql/05_indexes.sql](../sql/05_indexes.sql) and rewrites in [sql/06_optimized_queries.sql](../sql/06_optimized_queries.sql). Following index creation and `VACUUM ANALYZE;`, each query was evaluated across 3 runs using default PostgreSQL settings (`work_mem = 4MB`, `enable_seqscan = on`).
 
-Total workload latency across all 30 queries dropped from **1,650.459 ms** to **265.219 ms** (**83.9% reduction / 6.2x faster**). Every OLTP lookup and write except the nightly batch expiry (`W04`) now averages **under 2.2 ms**.
+Total execution time for the full workload dropped from **1,650.459 ms** to **265.219 ms**, representing an **83.9% overall reduction (6.2x speedup)**. High-frequency OLTP lookups and single-row mutations consistently run in under 2.2 ms.
 
 ---
 
