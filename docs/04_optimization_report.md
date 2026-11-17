@@ -56,8 +56,8 @@ FROM boost_packages b
 WHERE b.package_id NOT IN (SELECT l.boost_package_id FROM listings l);
 ```
 
-- **What it returned:** **0 rows** (empty result—matching Problem P5: *"The monetisation team's 'boost packages nobody bought' report is always empty"*).
-- **Why it is wrong:** In `listings`, 110,565 out of 120,000 ads are organic and have `boost_package_id IS NULL`. In SQL three-valued logic, `x NOT IN (1, 2, 3, 4, NULL)` expands to `x <> 1 AND x <> 2 AND x <> 3 AND x <> 4 AND x <> NULL`. For `package_id = 5` and `package_id = 6`, `5 <> NULL` evaluates to `UNKNOWN`, so the entire `AND` expression becomes `UNKNOWN`, and `WHERE` filters out **every** row.
+- **Observed output:** Zero rows (empty result, directly causing problem P5 where unsold package reports show nothing).
+- **Root cause:** In `listings`, 110,565 records have `boost_package_id IS NULL`. Under SQL three-valued logic, `x NOT IN (subquery)` evaluates to `UNKNOWN` whenever any returned value is `NULL`. Consequently, the `WHERE` condition cannot evaluate to `TRUE` for any row, improperly discarding unsold packages 5 and 6.
 - **The Fix in `sql/06_optimized_queries.sql`:** Replace `NOT IN` with `NOT EXISTS` (backed by partial index `idx_listings_boost_package WHERE boost_package_id IS NOT NULL`):
 
 ```sql
