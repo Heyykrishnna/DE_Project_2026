@@ -194,8 +194,8 @@ Index Scan using idx_listings_active_cars_filter on listings  (cost=0.28..8.30 r
 
 | Query | Before (ms) | After (ms) | Delta | Acceptable? |
 | --- | ---: | ---: | --- | --- |
-| **W01** (Insert new active furniture ad) | 0.808 | 1.454 | +0.646 ms (+80.0%) | **Yes.** Stays at ~1.5 ms; partial indexes skip `category_id = 2` (cars), `category_id = 5` (mobiles), `boost_package_id IS NOT NULL`, and `status = 'SOLD'`. |
-| **W02** (Mark oldest active ad sold) | 11.832 | 0.325 | -11.507 ms (**36.4x faster**) | **Huge win.** Lookup via `idx_listings_seller_status_view` outweighed index-maintenance cost. |
+| **W01** (Insert new active furniture ad) | 0.808 | 1.454 | +0.646 ms (+80.0%) | Acceptable. Total execution remains ~1.5 ms. Partial indexing shields this write from maintaining car, mobile, and sold indexes. |
+| **W02** (Mark oldest active ad sold) | 11.832 | 0.325 | -11.507 ms (36.4x faster) | Major improvement. Index scan on seller listings eliminates the prior full scan, easily justifying minor write cost. |
 | **W03** (Insert buyer chat message) | 0.580 | 0.798 | +0.218 ms (+37.6%) | **Yes.** Sub-millisecond; maintains `idx_chat_messages_thread_sent` and `idx_chat_messages_unread_thread`. |
 | **W04** (Nightly batch: expire 2,256 active ads) | 21.343 | 35.003 | +13.660 ms (+64.0%) | **Yes on seed.** Run 1 warmed index pages (`54.849 ms`); Runs 2–3 took `25.799 / 24.360 ms`. Updating `status` from `ACTIVE` to `EXPIRED` removes entries from partial `WHERE status = 'ACTIVE'` indexes—cheap at 120k, but monitored in Phase 5 at 20x scale. |
 | **W05** (Accept highest pending offer, reject rest) | 1.817 | 0.479 | -1.338 ms (**3.8x faster**) | **Huge win.** Partial index `idx_offers_pending_listing` finds pending offers for listing `118642` in `0.22–0.23 ms` warm (`0.988 ms` cold Run 1). |
