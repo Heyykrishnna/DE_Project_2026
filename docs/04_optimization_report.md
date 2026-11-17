@@ -84,7 +84,7 @@ All 25 read queries in [sql/06_optimized_queries.sql](../sql/06_optimized_querie
 
 ## 3. Before / After `EXPLAIN (ANALYZE, BUFFERS)` Plans (Top 5 Improvements)
 
-### 3.1 `R19`: `1,196.778 ms` -> `10.404 ms` (99.1% / 115.0x faster; `4.035 ms` warm)
+### 3.1 `R19`: `1,196.778 ms` -> `10.404 ms` (99.1% speedup; `4.035 ms` warm)
 
 **Before (Run 1: `1196.912 ms`, `shared hit=301543`):**
 ```text
@@ -113,7 +113,7 @@ Sort  (cost=2345.14..2345.82 rows=273 width=41) (actual time=3.988..3.994 rows=2
                     ->  Index Only Scan using idx_chat_messages_thread_sent on chat_messages m  (Heap Fetches: 0, loops=318)
 ```
 
-### 3.2 `R06`: `72.997 ms` -> `2.198 ms` (97.0% / 33.2x faster; `0.387 ms` warm)
+### 3.2 `R06`: `72.997 ms` -> `2.198 ms` (97.0% speedup; `0.387 ms` warm)
 
 **Before (Run 1: `81.660 ms`, `shared hit=37803`):**
 ```text
