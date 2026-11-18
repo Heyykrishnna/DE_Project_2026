@@ -869,3 +869,25 @@ SET status = CASE WHEN offer_id = (SELECT offer_id FROM offers WHERE listing_id 
 WHERE listing_id = 118642 AND status = 'PENDING';
 ```
 
+---
+
+## Deliverables & Execution Summary
+
+- **CP1:** Complete schema design in [sql/01_schema.sql](sql/01_schema.sql), CSV loading script in [sql/02_load_data.sql](sql/02_load_data.sql), ER diagram in [diagrams/er_diagram.png](diagrams/er_diagram.png), and design documentation in [docs/01_problem_understanding.md](docs/01_problem_understanding.md) and [docs/02_schema_design.md](docs/02_schema_design.md).
+- **CP2:** Baseline benchmark timings for all 30 queries in [docs/03_baseline_timings.md](docs/03_baseline_timings.md) and raw execution plans in [benchmarks/results/baseline/](benchmarks/results/baseline/).
+- **CP3:** Secondary indexing strategy in [sql/05_indexes.sql](sql/05_indexes.sql), query rewrites in [sql/06_optimized_queries.sql](sql/06_optimized_queries.sql), optimization analysis in [docs/04_optimization_report.md](docs/04_optimization_report.md), and benchmark results in [benchmarks/results/optimized/](benchmarks/results/optimized/).
+- **CP4:** Scalability report across 2.4M records in [docs/05_scalability_report.md](docs/05_scalability_report.md), monthly partitioning DDL in [sql/08_partitioning.sql](sql/08_partitioning.sql), and large dataset benchmark results in [benchmarks/results/large/](benchmarks/results/large/).
+
+### How to Run Benchmarks
+
+```bash
+# 1. Baseline on seed data (120k listings)
+./benchmarks/run_benchmark.sh olx_db baseline 3
+
+# 2. Optimized workload on seed data
+./benchmarks/run_benchmark.sh olx_db optimized 3 sql/06_optimized_queries.sql
+
+# 3. Scaled workload on large data (2.4M listings)
+./benchmarks/run_benchmark.sh olx_large large 3 sql/06_optimized_queries.sql
+```
+
