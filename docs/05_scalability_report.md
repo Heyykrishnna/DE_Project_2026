@@ -1,6 +1,6 @@
 # Phase 5: Scalability Report (20× Large Dataset & 100× Architecture)
 
-> **Dataset Disclosure:** As of completion (`2026-11-13`), faculty's `large_data.zip` (scheduled for `Thu 19 Nov 2026` in [README.md](../README.md)) had not yet been published in the repository. To run genuine `EXPLAIN (ANALYZE, BUFFERS)` benchmarks at 20× scale rather than estimating on paper, we synthesized a structurally faithful 20× dataset in `large_data/` (excluded via `.gitignore`) matching all 11 table schemas and target cardinalities (`1,000,000` users, `2,400,000` listings, `1,197,100` chat threads, `4,190,580` chat messages, `398,860` offers, `1,400,000` favourites, `159,980` reports, `224,880` seller ratings), loaded it into `olx_large`, applied [sql/05_indexes.sql](../sql/05_indexes.sql), ran `ANALYZE;`, and executed:
+> **Dataset note:** As of our benchmark run, the faculty `large_data.zip` export was not yet available in the repository. To run genuine `EXPLAIN (ANALYZE, BUFFERS)` benchmarks at 20× scale rather than estimating on paper, we synthesized a structurally faithful 20× dataset in `large_data/` (excluded via `.gitignore`) matching all 11 table schemas and target cardinalities (`1,000,000` users, `2,400,000` listings, `1,197,100` chat threads, `4,190,580` chat messages, `398,860` offers, `1,400,000` favourites, `159,980` reports, `224,880` seller ratings), loaded it into `olx_large`, applied [sql/05_indexes.sql](../sql/05_indexes.sql), ran `ANALYZE;`, and executed:
 >
 > `./benchmarks/run_benchmark.sh olx_large large 3 sql/06_optimized_queries.sql`
 >
@@ -57,8 +57,8 @@ In [sql/06_optimized_queries.sql](../sql/06_optimized_queries.sql), `R22` fetche
 
 ## 2. Growth Analysis (1× -> 20×)
 
-1. **~Constant / Sub-Linear (`< 5x` growth) — 13 queries:**
-   - **Read lookups (`R01`, `R04`, `R05`, `R06`, `R07`, `R09`, `R13`, `R22`, `R23`):** All grew between `0.55x` and `3.48x`. Selective B-tree height increases by only 1 level (`depth 3 -> depth 4`) when going from 120k to 2.4M rows, so index descent + fixed `LIMIT` / per-user fetch does nearly constant I/O (`3–20` buffer hits).
+1. **Sub-linear / near-constant scaling (< 5x growth) — 13 queries:**
+   - **Index lookups (`R01`, `R04`, `R05`, `R06`, `R07`, `R09`, `R13`, `R22`, `R23`):** All grew between `0.55x` and `3.48x`. Selective B-tree height increases by only 1 level (`depth 3 -> depth 4`) when going from 120k to 2.4M rows, so index descent + fixed `LIMIT` / per-user fetch does nearly constant I/O (`3–20` buffer hits).
    - **OLTP writes (`W01`, `W02`, `W03`, `W05`):** All grew only `2.36x`–`2.66x` (`0.864–3.435 ms`), staying well under `5 ms` because B-tree insertion/update touches one leaf page per index regardless of table size.
 
 2. **~Linear (`5x` to `25x` growth) — 14 queries:**
