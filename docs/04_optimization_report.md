@@ -204,7 +204,7 @@ Index Scan using idx_listings_active_cars_filter on listings  (cost=0.28..8.30 r
 
 ## 5. Index Storage Overhead (`pg_relation_size`)
 
-Total `olx_db` database size: **159 MB** (**70 MB** base tables, **81 MB** total indexes).
+Total storage for `olx_db` is **159 MB**, consisting of **70 MB** in table heaps and **81 MB** across primary and secondary indexes.
 
 | Table | Table Size | Indexes (Created + PK/UQ) | Total Table Indexes | Index / Table Ratio |
 | --- | --- | --- | --- | ---: |
@@ -218,7 +218,7 @@ Total `olx_db` database size: **159 MB** (**70 MB** base tables, **81 MB** total
 | `reports` | 688 kB (704,512 B) | `uq_reports_listing_reporter` (312 kB), `reports_pkey` (192 kB), `idx_reports_open_listing_reason` (48 kB) | **552 kB** | 0.80x |
 | `cities`, `categories`, `boost_packages` | 8,192 B each | PK + unique key (16 kB each) | **32 kB** each | 4.00x |
 
-Partial indexes keep maintenance and memory footprint small: `idx_chat_messages_unread_thread` (16 kB), `idx_offers_pending_listing` (16 kB), `idx_reports_open_listing_reason` (48 kB), `idx_listings_boost_package` (112 kB), `idx_listings_active_cars_filter` (448 kB), and `idx_listings_active_title_trgm` (672 kB).
+Targeted partial indexing helps control index bloat: unread messages (16 kB), pending offers (16 kB), open reports (48 kB), and boosted listings (112 kB) all maintain tiny working sets.
 
 ---
 
