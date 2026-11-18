@@ -52,6 +52,7 @@ CREATE TABLE listings_p_2026_06 PARTITION OF listings_partitioned FOR VALUES FRO
 CREATE TABLE listings_p_2026_07 PARTITION OF listings_partitioned FOR VALUES FROM ('2026-07-01 00:00:00+05:30') TO ('2026-08-01 00:00:00+05:30');
 CREATE TABLE listings_p_default PARTITION OF listings_partitioned DEFAULT;
 
+-- Local partition indexes
 CREATE INDEX idx_lp_active_cat_city_posted
     ON listings_partitioned (category_id, city_id, posted_at DESC)
     INCLUDE (price, title, attributes)
