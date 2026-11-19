@@ -112,7 +112,7 @@ Execution Time: 237.165 ms
 ### 3.2 `R03`: `1.513 ms` (Seed) -> `21.190 ms` (Large, ❌ > 5 ms Target)
 
 **Why it broke only at 20×:**
-On 120k rows, `title ILIKE '%iphone 13%'` matched 375 active ads across ~350 heap blocks (`1.5 ms`). At 2.4M rows, GIN `idx_listings_active_title_trgm` locates all **7,500 active matches** in just `1.6 ms` warm (`88` index buffers), but because a GIN inverted index cannot co-sort by `price`, PostgreSQL must perform a `Bitmap Heap Scan` over **6,171 random heap blocks** (`~48 MB` of scattered pages) solely to read `price`, sort all 7,500 rows, and return the top 40 (`Run 1: 41.494 ms`, `Run 2: 12.634 ms`, `Run 3 warm: 9.443 ms`, `avg: 21.190 ms`).
+On 120k rows, searching for 'iphone 13' matched 375 active ads across roughly 350 heap blocks (1.5 ms). At 2.4M rows, the trigram GIN index quickly finds 7,500 active matches, but because GIN cannot store price sort order, the engine must fetch 6,171 heap blocks (`~48 MB` of scattered pages) solely to read `price`, sort all 7,500 rows, and return the top 40 (`Run 1: 41.494 ms`, `Run 2: 12.634 ms`, `Run 3 warm: 9.443 ms`, `avg: 21.190 ms`).
 
 **Observed Plan (`benchmarks/results/large/R03.txt`, Run 3 warm: `9.443 ms`):**
 ```text
