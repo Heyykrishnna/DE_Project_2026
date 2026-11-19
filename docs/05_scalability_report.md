@@ -77,7 +77,7 @@ In [sql/06_optimized_queries.sql](../sql/06_optimized_queries.sql), `R22` fetche
 ### 3.1 `W04`: `35.003 ms` (Seed) -> `10,402.853 ms` (Large, ❌ > 1,000 ms Target)
 
 **Why it broke only at 20×:**
-On seed data, expiring `2,256` stale active ads updates `2,256` tuples across tiny indexes fitting entirely in RAM (`128 MB` `shared_buffers`), finishing in `24–54 ms`. At 20× (`45,120` stale `ACTIVE` rows scattered across all 17 historical months `Jan 2025–May 2026` on 34,945 heap blocks), a single monolithic `UPDATE` modifies every expired tuple across all 12 indexes on `listings` (`760 MB` table + `694 MB` indexes = `1,454 MB`). Because the working set of dirty heap and index pages exceeds PostgreSQL's `128 MB` `shared_buffers`, every updated row triggers buffer eviction and random I/O (`83,459–91,301` disk reads and `66,732–84,932` buffer writes per run).
+On seed data, expiring 2,256 active ads updates pages that easily fit within PostgreSQL's default 128 MB shared buffers, completing in 24–54 ms. At 20x scale (45,120 expired active rows scattered across 17 months and 34,945 heap blocks), updating all records in a single statement causes heavy buffer eviction across 1.45 GB of tables and indexes. Because the working set of dirty heap and index pages exceeds PostgreSQL's `128 MB` `shared_buffers`, every updated row triggers buffer eviction and random I/O (`83,459–91,301` disk reads and `66,732–84,932` buffer writes per run).
 
 **Before Plan (`benchmarks/results/large/W04.txt`, Run 2: `10,106.374 ms`):**
 ```text
