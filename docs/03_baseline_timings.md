@@ -36,14 +36,14 @@ Measured on PostgreSQL 18.6 (`aarch64-apple-darwin`, MacBook Pro M4) against dat
 | W03: Chat: user 1042 sends a message in their most recent conversation as a buyer | WRITE | 0.691 | 0.614 | 0.435 | 0.580 |
 | W04: Nightly job: expire every active ad whose expiry date has passed (run at 00:00 on 1 July 2026) | WRITE | 23.637 | 21.724 | 18.669 | 21.343 |
 | W05: Seller accepts the highest pending offer on listing 118642 and rejects the others | WRITE | 1.849 | 1.809 | 1.794 | 1.817 |
-| **Total (sum of all 30)** | — | **1671.146** | **1621.256** | **1658.972** | **1650.458** |
+| **Total (all 30 queries)** | — | **1,671.146** | **1,621.256** | **1,658.972** | **1,650.458** |
 
 ## Scan Types & Bottleneck Analysis
 
 | Query | Scan Node(s) in Plan | Why It Is Slow or Fast |
 | --- | --- | --- |
-| **R01** | `Seq Scan on listings` | Slow: Parallel Seq Scan over all 120,000 `listings` rows (discards ~119,821) + top-N sort because no composite/partial index covers `(category_id, city_id, price, posted_at)` for active ads. |
-| **R02** | `Seq Scan on listings` | Slow: Parallel Seq Scan on all 120,000 `listings` evaluating JSONB `->>` casts on every row; no partial/expression/GIN index on `category_id`, `city_id`, or `attributes`. |
+| **R01** | `Seq Scan on listings` | Sequential scan across 120k listings (discards ~119.8k rows) followed by a top-N sort due to absence of composite index on category, city, price, and timestamp. |
+| **R02** | `Seq Scan on listings` | Parallel scan evaluating dynamic JSONB attribute casts for fuel, year, and mileage across all rows without supporting expression indexes. |
 | **R03** | `Seq Scan on listings` | Slow: Parallel Seq Scan over 120,000 `listings` running `ILIKE '%iphone 13%'` on every row + sort by `price`; no trigram GIN index on `title`. |
 | **R04** | `Index Scan using listings_pkey on listings | Index Scan using users_pkey on users | Seq Scan on seller_ratings` | Moderately fast: `listings_pkey` and `users_pkey` do instant PK lookups, but the correlated subquery on `seller_ratings` falls back to a Seq Scan over all 11,244 rows (`seller_id` is unindexed). |
 | **R05** | `Seq Scan on listings` | Slow: Full Seq Scan of 120,000 `listings` discarding 119,991 rows to find user 1042's 9 ads because `seller_id` is unindexed. |
@@ -60,7 +60,7 @@ Measured on PostgreSQL 18.6 (`aarch64-apple-darwin`, MacBook Pro M4) against dat
 | **R16** | `Seq Scan on listings | Seq Scan on favourites` | Slow: Full Seq Scan of 70,000 `favourites` (`saved_at >= 2026-06-24` has no index) joined against a Seq Scan of 120,000 `listings` (`status = 'ACTIVE'`). |
 | **R17** | `Seq Scan on listings | Seq Scan on categories` | Analytical scan: Parallel Seq Scan over all 120,000 `listings` hash-joined with `categories` to aggregate view counts across boosted vs. organic ads. |
 | **R18** | `Seq Scan on listings` | Slow: Full Seq Scan of 120,000 `listings` + HashAggregate over `(seller_id, title, price)` spilling to temp disk (386 temp blocks written). |
-| **R19** | `Seq Scan on listings | Index Only Scan using uq_chat_threads_listing_buyer on chat_threads | Seq Scan on chat_messages | Index Scan using uq_chat_threads_listing_buyer on chat_threads` | Bottleneck (1.2 s): Parallel Seq Scan on `listings` finds 279 active Bengaluru cars, then correlated `SubPlan 2` executes a **full Seq Scan of 209,529 `chat_messages` inside a loop for all 279 listings** (~296k shared buffer hits). |
+| **R19** | `Seq Scan on listings | Index Only Scan using uq_chat_threads_listing_buyer on chat_threads | Seq Scan on chat_messages | Index Scan using uq_chat_threads_listing_buyer on chat_threads` | Primary bottleneck: Scans 279 active Bengaluru cars, after which correlated SubPlan 2 executes a full sequential scan of 209,529 chat messages in a loop for every listing (~296k buffer hits). |
 | **R20** | `Seq Scan on listings` | Slow: Parallel Seq Scan over all 120,000 `listings` applying non-sargable `posted_at::date BETWEEN ...` instead of an index range scan on `posted_at`. |
 | **R21** | `Seq Scan on seller_ratings | Seq Scan on users` | Analytical scan: Full Seq Scan of `seller_ratings` (11,244) and `users` (50,000) for global top-rated seller aggregation. |
 | **R22** | `Seq Scan on listings` | Slow: Full Seq Scan of 120,000 `listings` + **external disk merge sort (`7,488 kB` temp disk)** to discard 50,000 rows via `OFFSET 50000` because `posted_at` is unindexed. |
@@ -69,7 +69,7 @@ Measured on PostgreSQL 18.6 (`aarch64-apple-darwin`, MacBook Pro M4) against dat
 | **R25** | `Seq Scan on chat_messages | Seq Scan on chat_threads | Seq Scan on listings | Seq Scan on categories` | Analytical scan: Seq/Parallel Seq Scans on 209,529 `chat_messages`, 59,855 `chat_threads`, and 120,000 `listings` with `t.created_at >= 2026-01-01` unindexed. |
 | **W01** | `(no scan)` | Fast (0.808 ms): Single-row `INSERT` into `listings` with FK validations via PK indexes (`users_pkey`, `categories_pkey`, `cities_pkey`). |
 | **W02** | `Seq Scan on listings | Index Scan using listings_pkey on listings` | Slow for an OLTP write: Subquery runs a full Seq Scan over 120,000 `listings` to find `min(listing_id)` for `seller_id = 1042` before PK `UPDATE`. |
-| **W03** | `Index Scan using chat_threads_pkey on chat_threads` | Moderate: Uses `Index Scan Backward using chat_threads_pkey` scanning 3,365 threads until finding `buyer_id = 1042` (`buyer_id` has no index). |
+| **W03** | `Index Scan using chat_threads_pkey on chat_threads` | Uses a backward primary key scan over 3,365 threads until locating buyer 1042 due to absence of secondary index on buyer_id. |
 | **W04** | `Seq Scan on listings` | Slow: Full Seq Scan of 120,000 `listings` discarding 117,744 rows to update 2,256 expired active ads (`(status, expires_at)` unindexed). |
 | **W05** | `Seq Scan on offers` | Degrades with scale: Runs **two** full Seq Scans of `offers` (19,943 rows each) to locate `listing_id = 118642 AND status = 'PENDING'` because `offers(listing_id)` is unindexed. |
 

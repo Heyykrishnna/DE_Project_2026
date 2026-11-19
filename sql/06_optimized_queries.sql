@@ -65,13 +65,17 @@ SELECT (
     (SELECT count(*)
      FROM chat_threads t
      JOIN chat_messages m ON m.thread_id = t.thread_id
-     WHERE t.buyer_id = 1042 AND NOT m.is_read AND m.sender_id <> 1042)
+     WHERE t.buyer_id = 1042
+       AND NOT m.is_read
+       AND m.sender_id <> 1042)
     +
     (SELECT count(*)
      FROM listings l
      JOIN chat_threads t ON t.listing_id = l.listing_id
      JOIN chat_messages m ON m.thread_id = t.thread_id
-     WHERE l.seller_id = 1042 AND NOT m.is_read AND m.sender_id <> 1042)
+     WHERE l.seller_id = 1042
+       AND NOT m.is_read
+       AND m.sender_id <> 1042)
 ) AS unread;
 
 -- @R08
@@ -103,7 +107,9 @@ ORDER BY expires_at;
 -- @R11
 SELECT q.listing_id, l.title, q.open_reports, q.reasons
 FROM (
-    SELECT r.listing_id, count(*) AS open_reports, array_agg(DISTINCT r.reason) AS reasons
+    SELECT r.listing_id,
+           count(*) AS open_reports,
+           array_agg(DISTINCT r.reason) AS reasons
     FROM reports r
     WHERE r.status = 'OPEN'
     GROUP BY r.listing_id
@@ -129,7 +135,8 @@ WHERE NOT EXISTS (
 );
 
 -- @R14
-SELECT c.category_name, count(*) AS sold,
+SELECT c.category_name,
+       count(*) AS sold,
        round(avg(EXTRACT(EPOCH FROM (l.sold_at - l.posted_at)) / 86400), 1) AS avg_days_to_sell
 FROM listings l
 JOIN categories c ON c.category_id = l.category_id

@@ -1,8 +1,8 @@
 # Phase 4: Query Optimization Report
 
-All secondary indexes are defined in [sql/05_indexes.sql](../sql/05_indexes.sql) and query rewrites are in [sql/06_optimized_queries.sql](../sql/06_optimized_queries.sql). After creating the 20 indexes and running `VACUUM ANALYZE;`, all 30 queries were re-benchmarked 3 times via `./benchmarks/run_benchmark.sh olx_db optimized 3 sql/06_optimized_queries.sql` with default PostgreSQL memory and planner settings (`work_mem = 4MB`, `enable_seqscan = on`).
+This report summarizes the secondary indexing and query rewrite strategies implemented for the 30 project queries. All indexes are defined in [sql/05_indexes.sql](../sql/05_indexes.sql) and rewrites in [sql/06_optimized_queries.sql](../sql/06_optimized_queries.sql). Following index creation and `VACUUM ANALYZE;`, each query was evaluated across 3 runs using default PostgreSQL settings (`work_mem = 4MB`, `enable_seqscan = on`).
 
-Total workload latency across all 30 queries dropped from **1,650.459 ms** to **265.219 ms** (**83.9% reduction / 6.2x faster**). Every OLTP lookup and write except the nightly batch expiry (`W04`) now averages **under 2.2 ms**.
+Total execution time for the full workload dropped from **1,650.459 ms** to **265.219 ms**, representing an **83.9% overall reduction (6.2x speedup)**. High-frequency OLTP lookups and single-row mutations consistently run in under 2.2 ms.
 
 ---
 
@@ -22,7 +22,7 @@ Improvement % = `(Before - After) / Before * 100`.
 | **R08** | 6.735 | Parallel Seq Scan on 120k `listings` filtering JSONB `model` + `posted_at` | Partial expression covering index `idx_listings_mobiles_model_posted` (`WHERE category_id = 5`) | 4.730 | 29.8% (1.4x) | ✅ |
 | **R09** | 8.022 | Parallel Seq Scan on 120k `listings` for bounding-box geo filter | Partial covering index `idx_listings_active_cat_lat_lon (category_id, latitude, longitude) WHERE status = 'ACTIVE'` | 0.261 | 96.7% (30.7x) | ✅ |
 | **R10** | 7.321 | Parallel Seq Scan on 120k `listings` for 3-day `expires_at` window | Partial covering index `idx_listings_active_expires (expires_at) WHERE status = 'ACTIVE'` | 0.682 | 90.7% (10.7x) | ✅ |
-| **R11** | 2.365 | Seq Scan on `reports` + 639 PK lookups before `HAVING` filter | Aggregated `reports` in subquery before `listings` join + partial `idx_reports_open_listing_reason` | 1.515 | 35.9% (1.6x) | ✅ |
+| **R11** | 2.365 | Seq Scan on `reports` + 639 PK lookups before `HAVING` filter | Pre-aggregates open reports in derived query before joining listings + partial `idx_reports_open_listing_reason` | 1.515 | 35.9% (1.6x) | ✅ |
 | **R12** | 40.137 | Seq Scan on 120k `listings` + HashAggregate temp-disk spill (`736 kB`) | Rewrote to explicit `IST` date grouping; planner keeps `Seq Scan + HashAggregate` (faster than index scan) | 63.196 | -57.5% (1.57x slower) | ✅ |
 | **R13** | 15.019 | Seq Scan on 120k `listings` + **NULL bug (`NOT IN` returns 0 rows)** | Rewrote `NOT IN` to `NOT EXISTS` (fixes NULL bug) + partial `idx_listings_boost_package` | 0.101 | 99.3% (148.7x) | ✅ (fixed: 0 -> 2 rows) |
 | **R14** | 9.877 | Parallel Seq Scan on 120k `listings` with non-sargable `EXTRACT(YEAR)` | Sargable `sold_at` range rewrite + partial `Index Only Scan` via `idx_listings_sold_at_cat` | 4.616 | 53.3% (2.1x) | ✅ |
@@ -56,8 +56,8 @@ FROM boost_packages b
 WHERE b.package_id NOT IN (SELECT l.boost_package_id FROM listings l);
 ```
 
-- **What it returned:** **0 rows** (empty result—matching Problem P5: *"The monetisation team's 'boost packages nobody bought' report is always empty"*).
-- **Why it is wrong:** In `listings`, 110,565 out of 120,000 ads are organic and have `boost_package_id IS NULL`. In SQL three-valued logic, `x NOT IN (1, 2, 3, 4, NULL)` expands to `x <> 1 AND x <> 2 AND x <> 3 AND x <> 4 AND x <> NULL`. For `package_id = 5` and `package_id = 6`, `5 <> NULL` evaluates to `UNKNOWN`, so the entire `AND` expression becomes `UNKNOWN`, and `WHERE` filters out **every** row.
+- **Observed output:** Zero rows (empty result, directly causing problem P5 where unsold package reports show nothing).
+- **Root cause:** In `listings`, 110,565 records have `boost_package_id IS NULL`. Under SQL three-valued logic, `x NOT IN (subquery)` evaluates to `UNKNOWN` whenever any returned value is `NULL`. Consequently, the `WHERE` condition cannot evaluate to `TRUE` for any row, improperly discarding unsold packages 5 and 6.
 - **The Fix in `sql/06_optimized_queries.sql`:** Replace `NOT IN` with `NOT EXISTS` (backed by partial index `idx_listings_boost_package WHERE boost_package_id IS NOT NULL`):
 
 ```sql
@@ -84,7 +84,7 @@ All 25 read queries in [sql/06_optimized_queries.sql](../sql/06_optimized_querie
 
 ## 3. Before / After `EXPLAIN (ANALYZE, BUFFERS)` Plans (Top 5 Improvements)
 
-### 3.1 `R19`: `1,196.778 ms` -> `10.404 ms` (99.1% / 115.0x faster; `4.035 ms` warm)
+### 3.1 `R19`: `1,196.778 ms` -> `10.404 ms` (99.1% speedup; `4.035 ms` warm)
 
 **Before (Run 1: `1196.912 ms`, `shared hit=301543`):**
 ```text
@@ -113,7 +113,7 @@ Sort  (cost=2345.14..2345.82 rows=273 width=41) (actual time=3.988..3.994 rows=2
                     ->  Index Only Scan using idx_chat_messages_thread_sent on chat_messages m  (Heap Fetches: 0, loops=318)
 ```
 
-### 3.2 `R06`: `72.997 ms` -> `2.198 ms` (97.0% / 33.2x faster; `0.387 ms` warm)
+### 3.2 `R06`: `72.997 ms` -> `2.198 ms` (97.0% speedup; `0.387 ms` warm)
 
 **Before (Run 1: `81.660 ms`, `shared hit=37803`):**
 ```text
@@ -194,8 +194,8 @@ Index Scan using idx_listings_active_cars_filter on listings  (cost=0.28..8.30 r
 
 | Query | Before (ms) | After (ms) | Delta | Acceptable? |
 | --- | ---: | ---: | --- | --- |
-| **W01** (Insert new active furniture ad) | 0.808 | 1.454 | +0.646 ms (+80.0%) | **Yes.** Stays at ~1.5 ms; partial indexes skip `category_id = 2` (cars), `category_id = 5` (mobiles), `boost_package_id IS NOT NULL`, and `status = 'SOLD'`. |
-| **W02** (Mark oldest active ad sold) | 11.832 | 0.325 | -11.507 ms (**36.4x faster**) | **Huge win.** Lookup via `idx_listings_seller_status_view` outweighed index-maintenance cost. |
+| **W01** (Insert new active furniture ad) | 0.808 | 1.454 | +0.646 ms (+80.0%) | Acceptable. Total execution remains ~1.5 ms. Partial indexing shields this write from maintaining car, mobile, and sold indexes. |
+| **W02** (Mark oldest active ad sold) | 11.832 | 0.325 | -11.507 ms (36.4x faster) | Major improvement. Index scan on seller listings eliminates the prior full scan, easily justifying minor write cost. |
 | **W03** (Insert buyer chat message) | 0.580 | 0.798 | +0.218 ms (+37.6%) | **Yes.** Sub-millisecond; maintains `idx_chat_messages_thread_sent` and `idx_chat_messages_unread_thread`. |
 | **W04** (Nightly batch: expire 2,256 active ads) | 21.343 | 35.003 | +13.660 ms (+64.0%) | **Yes on seed.** Run 1 warmed index pages (`54.849 ms`); Runs 2–3 took `25.799 / 24.360 ms`. Updating `status` from `ACTIVE` to `EXPIRED` removes entries from partial `WHERE status = 'ACTIVE'` indexes—cheap at 120k, but monitored in Phase 5 at 20x scale. |
 | **W05** (Accept highest pending offer, reject rest) | 1.817 | 0.479 | -1.338 ms (**3.8x faster**) | **Huge win.** Partial index `idx_offers_pending_listing` finds pending offers for listing `118642` in `0.22–0.23 ms` warm (`0.988 ms` cold Run 1). |
@@ -204,7 +204,7 @@ Index Scan using idx_listings_active_cars_filter on listings  (cost=0.28..8.30 r
 
 ## 5. Index Storage Overhead (`pg_relation_size`)
 
-Total `olx_db` database size: **159 MB** (**70 MB** base tables, **81 MB** total indexes).
+Total storage for `olx_db` is **159 MB**, consisting of **70 MB** in table heaps and **81 MB** across primary and secondary indexes.
 
 | Table | Table Size | Indexes (Created + PK/UQ) | Total Table Indexes | Index / Table Ratio |
 | --- | --- | --- | --- | ---: |
@@ -218,7 +218,7 @@ Total `olx_db` database size: **159 MB** (**70 MB** base tables, **81 MB** total
 | `reports` | 688 kB (704,512 B) | `uq_reports_listing_reporter` (312 kB), `reports_pkey` (192 kB), `idx_reports_open_listing_reason` (48 kB) | **552 kB** | 0.80x |
 | `cities`, `categories`, `boost_packages` | 8,192 B each | PK + unique key (16 kB each) | **32 kB** each | 4.00x |
 
-Partial indexes keep maintenance and memory footprint small: `idx_chat_messages_unread_thread` (16 kB), `idx_offers_pending_listing` (16 kB), `idx_reports_open_listing_reason` (48 kB), `idx_listings_boost_package` (112 kB), `idx_listings_active_cars_filter` (448 kB), and `idx_listings_active_title_trgm` (672 kB).
+Targeted partial indexing helps control index bloat: unread messages (16 kB), pending offers (16 kB), open reports (48 kB), and boosted listings (112 kB) all maintain tiny working sets.
 
 ---
 

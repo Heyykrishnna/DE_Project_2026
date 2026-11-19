@@ -1,9 +1,9 @@
 SET search_path TO olx;
 
-\copy cities FROM 'seed_data/cities.csv' WITH (FORMAT csv, HEADER true)
-\copy categories FROM 'seed_data/categories.csv' WITH (FORMAT csv, HEADER true)
+\copy cities         FROM 'seed_data/cities.csv'         WITH (FORMAT csv, HEADER true)
+\copy categories     FROM 'seed_data/categories.csv'     WITH (FORMAT csv, HEADER true)
 \copy boost_packages FROM 'seed_data/boost_packages.csv' WITH (FORMAT csv, HEADER true)
-\copy users FROM 'seed_data/users.csv' WITH (FORMAT csv, HEADER true)
+\copy users          FROM 'seed_data/users.csv'          WITH (FORMAT csv, HEADER true)
 \copy listings FROM 'seed_data/listings.csv' WITH (FORMAT csv, HEADER true)
 \copy chat_threads FROM 'seed_data/chat_threads.csv' WITH (FORMAT csv, HEADER true)
 \copy chat_messages FROM 'seed_data/chat_messages.csv' WITH (FORMAT csv, HEADER true)

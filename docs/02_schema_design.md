@@ -221,7 +221,7 @@ PostgreSQL automatically creates unique B-tree indexes only for `PRIMARY KEY` an
 
 ## 5. Normalization & Functional Dependencies (3NF / BCNF)
 
-Every table satisfies **1NF** (atomic attributes; `listings.attributes` is stored as structured `JSONB` for polymorphic category-specific key/value specs rather than repeating columns across categories), **2NF** (no partial dependencies on composite keys—`favourites` is `{user_id, listing_id} -> saved_at`), **3NF**, and **BCNF** (every non-trivial FD `X -> Y` has a superkey `X` on the LHS), with one intentional denormalization examined below:
+All relations satisfy 1NF (atomic attributes, with category specifications structured in JSONB), 2NF (no partial key dependencies), 3NF, and BCNF (every non-trivial functional dependency X -> Y has a superkey X), with one intentional denormalization evaluated below:
 
 | Table | Candidate Keys | Non-Trivial Functional Dependencies | Normal Form |
 | --- | --- | --- | --- |
@@ -285,7 +285,7 @@ All 11 CSV files match the exact expected row counts from the project specificat
 
 ### Data Problems Discovered in `seed_data/`
 
-1. **Self-favourites (`5` rows):** 5 rows in `favourites` have `favourites.user_id = listings.seller_id` (sellers bookmarking their own ads). Since `favourites` has no direct access to `listings.seller_id` via a row-level `CHECK` constraint, a cross-table trigger would be needed to block it; we accepted all 5 rows per Phase 2 rules.
+1. **Self-favourites (`5` rows):** 5 rows in `favourites` record `favourites.user_id = listings.seller_id` where sellers bookmarked their own ads. Because cross-table validation requires triggers rather than declarative row constraints, these historical records were preserved per Phase 2 loading rules.
 2. **Listings posted before `users.joined_at` (`634` rows):** 634 listings have `listings.posted_at < users.joined_at`. Again, cross-table temporal ordering is not enforced via `CHECK` so all seed rows load cleanly.
 3. **Stale `ACTIVE` ads past `expires_at` (`2,256` rows):** 2,256 listings remain `status = 'ACTIVE'` even though `expires_at < '2026-07-01 00:00:00+05:30'`. This is expected operational drift cleaned up by the nightly expiry job `W04`.
 4. **Multiple `ACCEPTED` offers on a single listing (`419` listings):** 419 listings have `>1` `ACCEPTED` offer in `offers.csv`. Therefore, we intentionally did **not** add a partial unique index `UNIQUE (listing_id) WHERE status = 'ACCEPTED'`, because doing so would reject valid seed rows.

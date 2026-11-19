@@ -18,7 +18,8 @@ CREATE INDEX idx_listings_active_cars_filter
         ((attributes ->> 'km_driven')::int)
     )
     INCLUDE (title, attributes)
-    WHERE status = 'ACTIVE' AND category_id = 2;
+    WHERE status = 'ACTIVE'
+      AND category_id = 2;
 
 -- Serves R03: partial trigram GIN index for ILIKE '%...%' title search on active listings only
 CREATE INDEX idx_listings_active_title_trgm
@@ -109,4 +110,3 @@ CREATE INDEX idx_offers_pending_listing
 CREATE INDEX idx_offers_listing_status
     ON offers (listing_id)
     INCLUDE (status);
-

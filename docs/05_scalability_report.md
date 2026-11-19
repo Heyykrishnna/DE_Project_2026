@@ -1,6 +1,6 @@
 # Phase 5: Scalability Report (20× Large Dataset & 100× Architecture)
 
-> **Dataset Disclosure:** As of completion (`2026-11-13`), faculty's `large_data.zip` (scheduled for `Thu 19 Nov 2026` in [README.md](../README.md)) had not yet been published in the repository. To run genuine `EXPLAIN (ANALYZE, BUFFERS)` benchmarks at 20× scale rather than estimating on paper, we synthesized a structurally faithful 20× dataset in `large_data/` (excluded via `.gitignore`) matching all 11 table schemas and target cardinalities (`1,000,000` users, `2,400,000` listings, `1,197,100` chat threads, `4,190,580` chat messages, `398,860` offers, `1,400,000` favourites, `159,980` reports, `224,880` seller ratings), loaded it into `olx_large`, applied [sql/05_indexes.sql](../sql/05_indexes.sql), ran `ANALYZE;`, and executed:
+> **Dataset note:** As of our benchmark run, the faculty `large_data.zip` export was not yet available in the repository. To run genuine `EXPLAIN (ANALYZE, BUFFERS)` benchmarks at 20× scale rather than estimating on paper, we synthesized a structurally faithful 20× dataset in `large_data/` (excluded via `.gitignore`) matching all 11 table schemas and target cardinalities (`1,000,000` users, `2,400,000` listings, `1,197,100` chat threads, `4,190,580` chat messages, `398,860` offers, `1,400,000` favourites, `159,980` reports, `224,880` seller ratings), loaded it into `olx_large`, applied [sql/05_indexes.sql](../sql/05_indexes.sql), ran `ANALYZE;`, and executed:
 >
 > `./benchmarks/run_benchmark.sh olx_large large 3 sql/06_optimized_queries.sql`
 >
@@ -57,8 +57,8 @@ In [sql/06_optimized_queries.sql](../sql/06_optimized_queries.sql), `R22` fetche
 
 ## 2. Growth Analysis (1× -> 20×)
 
-1. **~Constant / Sub-Linear (`< 5x` growth) — 13 queries:**
-   - **Read lookups (`R01`, `R04`, `R05`, `R06`, `R07`, `R09`, `R13`, `R22`, `R23`):** All grew between `0.55x` and `3.48x`. Selective B-tree height increases by only 1 level (`depth 3 -> depth 4`) when going from 120k to 2.4M rows, so index descent + fixed `LIMIT` / per-user fetch does nearly constant I/O (`3–20` buffer hits).
+1. **Sub-linear / near-constant scaling (< 5x growth) — 13 queries:**
+   - **Index lookups (`R01`, `R04`, `R05`, `R06`, `R07`, `R09`, `R13`, `R22`, `R23`):** All grew between `0.55x` and `3.48x`. Selective B-tree height increases by only 1 level (`depth 3 -> depth 4`) when going from 120k to 2.4M rows, so index descent + fixed `LIMIT` / per-user fetch does nearly constant I/O (`3–20` buffer hits).
    - **OLTP writes (`W01`, `W02`, `W03`, `W05`):** All grew only `2.36x`–`2.66x` (`0.864–3.435 ms`), staying well under `5 ms` because B-tree insertion/update touches one leaf page per index regardless of table size.
 
 2. **~Linear (`5x` to `25x` growth) — 14 queries:**
@@ -77,7 +77,7 @@ In [sql/06_optimized_queries.sql](../sql/06_optimized_queries.sql), `R22` fetche
 ### 3.1 `W04`: `35.003 ms` (Seed) -> `10,402.853 ms` (Large, ❌ > 1,000 ms Target)
 
 **Why it broke only at 20×:**
-On seed data, expiring `2,256` stale active ads updates `2,256` tuples across tiny indexes fitting entirely in RAM (`128 MB` `shared_buffers`), finishing in `24–54 ms`. At 20× (`45,120` stale `ACTIVE` rows scattered across all 17 historical months `Jan 2025–May 2026` on 34,945 heap blocks), a single monolithic `UPDATE` modifies every expired tuple across all 12 indexes on `listings` (`760 MB` table + `694 MB` indexes = `1,454 MB`). Because the working set of dirty heap and index pages exceeds PostgreSQL's `128 MB` `shared_buffers`, every updated row triggers buffer eviction and random I/O (`83,459–91,301` disk reads and `66,732–84,932` buffer writes per run).
+On seed data, expiring 2,256 active ads updates pages that easily fit within PostgreSQL's default 128 MB shared buffers, completing in 24–54 ms. At 20x scale (45,120 expired active rows scattered across 17 months and 34,945 heap blocks), updating all records in a single statement causes heavy buffer eviction across 1.45 GB of tables and indexes. Because the working set of dirty heap and index pages exceeds PostgreSQL's `128 MB` `shared_buffers`, every updated row triggers buffer eviction and random I/O (`83,459–91,301` disk reads and `66,732–84,932` buffer writes per run).
 
 **Before Plan (`benchmarks/results/large/W04.txt`, Run 2: `10,106.374 ms`):**
 ```text
@@ -112,7 +112,7 @@ Execution Time: 237.165 ms
 ### 3.2 `R03`: `1.513 ms` (Seed) -> `21.190 ms` (Large, ❌ > 5 ms Target)
 
 **Why it broke only at 20×:**
-On 120k rows, `title ILIKE '%iphone 13%'` matched 375 active ads across ~350 heap blocks (`1.5 ms`). At 2.4M rows, GIN `idx_listings_active_title_trgm` locates all **7,500 active matches** in just `1.6 ms` warm (`88` index buffers), but because a GIN inverted index cannot co-sort by `price`, PostgreSQL must perform a `Bitmap Heap Scan` over **6,171 random heap blocks** (`~48 MB` of scattered pages) solely to read `price`, sort all 7,500 rows, and return the top 40 (`Run 1: 41.494 ms`, `Run 2: 12.634 ms`, `Run 3 warm: 9.443 ms`, `avg: 21.190 ms`).
+On 120k rows, searching for 'iphone 13' matched 375 active ads across roughly 350 heap blocks (1.5 ms). At 2.4M rows, the trigram GIN index quickly finds 7,500 active matches, but because GIN cannot store price sort order, the engine must fetch 6,171 heap blocks (`~48 MB` of scattered pages) solely to read `price`, sort all 7,500 rows, and return the top 40 (`Run 1: 41.494 ms`, `Run 2: 12.634 ms`, `Run 3 warm: 9.443 ms`, `avg: 21.190 ms`).
 
 **Observed Plan (`benchmarks/results/large/R03.txt`, Run 3 warm: `9.443 ms`):**
 ```text
@@ -247,7 +247,7 @@ Based on our measured 20× profiles (`olx_large`):
 
 ## 6. Conclusion
 
-- **20× Readiness Verdict:** **Conditioned PASS (28 / 30 queries pass strict SLAs cleanly out of the box).** After adding [sql/05_indexes.sql](../sql/05_indexes.sql) and rewrites in [sql/06_optimized_queries.sql](../sql/06_optimized_queries.sql), all OLTP browse, detail, chat, offer, moderation, and analytic workloads except `R03` and unbatched `W04` meet every SLA on 2.4M ads (`1,430 MB` data + `1,456 MB` indexes). Implementing monthly partitioning ([sql/08_partitioning.sql](../sql/08_partitioning.sql)) and chunked updates fixes `W04` (`10,402 ms -> 237 ms` per active window).
+- **20x readiness assessment:** 28 of 30 queries comfortably satisfy target SLAs on 2.4M records. After adding [sql/05_indexes.sql](../sql/05_indexes.sql) and rewrites in [sql/06_optimized_queries.sql](../sql/06_optimized_queries.sql), all OLTP browse, detail, chat, offer, moderation, and analytic workloads except `R03` and unbatched `W04` meet every SLA on 2.4M ads (`1,430 MB` data + `1,456 MB` indexes). Partitioning the listings table by month ([sql/08_partitioning.sql](../sql/08_partitioning.sql)) and batching updates brings W04 down to ~237 ms per active partition.
 - **Remaining Risks for 20× -> 100×:**
   1. **Unscoped wildcard search + price sort (`R03`):** GIN trigram bitmap scans hit the O(matches) heap-fetch ceiling around ~5k–10k active matches (`9.4–21.2 ms`); requires OpenSearch/Elasticsearch/`pg_search` or popular-term Redis caching to guarantee `< 5 ms` globally.
   2. **`default` `shared_buffers` (`128 MB`) & `work_mem` (`4 MB`):** Large hash aggregations (`R12` spilling 73 MB to temp disk) and multi-index batch writes (`W04`) need production memory sizing (`shared_buffers = 25–40% RAM`, worker-level `work_mem = 64MB` on analytics replicas) and `LIMIT`-batched background workers.
